@@ -1,0 +1,240 @@
+\documentclass[a4paper,12pt]{amsart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[top=21mm,left=28mm,right=21mm,bottom=21mm,nohead,nofoot]{geometry}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{pifont}
+\usepackage{color}
+\usepackage{enumitem}
+\usepackage{listings}
+%\usepackage{graphicx}
+\usepackage{tikz}
+
+
+% -------------- Set page lengths
+\parskip=1mm
+\parindent=0mm
+\renewcommand{\baselinestretch}{1.3}
+
+% -------------- set enumerate style
+%-- redefine defaults with enumitem package
+\setenumerate{itemsep=1mm,topsep=1mm,parsep=1mm,partopsep=0pt}
+%-- redefine the first level
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+%-- redefine the second level
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii)}
+%-- define (my)dinglist
+\newenvironment{mydinglist}
+    {\begin{itemize}\renewcommand\labelitemi{\ding{224}}}
+    {\end{itemize}}
+
+% -------------- theorems
+\theoremstyle{definition}
+\newtheorem{exo}{Exercice}
+\newcommand{\startnewline}{\ \par} % a mettre juste après \begin{exo} ou \section{...} pour passer à la ligne
+
+% -------------- standard notations
+% --- sets
+\def\N{\mathbb{N}}
+\def\R{\mathbb{R}}
+\def\C{\mathbb{C}}
+% --- matrix
+\newcommand{\MN}{{\mathcal{M}}_n}
+% ---- set {a,...,b}
+\newcommand{\ens}[2]{\lbrace #1,\,\ldots,\, #2 \rbrace}
+
+% -------------- display style
+\def\ds{\displaystyle}
+
+% -------------- matlab
+% --- colors using 'colors' package
+\definecolor{mtlbcmd}{rgb}{1,0,0}
+\definecolor{mtlbtext}{rgb}{0,0,1}
+\definecolor{cmdtext}{rgb}{0,0,.5}
+\definecolor{notion}{rgb}{1,0,0}
+\definecolor{attention}{rgb}{1,0,0}
+% --- matlab commands using 'listings' and 'tikz' packages 
+\lstset{    
+    language=matlab,
+    basicstyle=\color{mtlbtext}\ttfamily,
+    keywordstyle=\color{mtlbcmd}\bfseries,
+    morekeywords={ones, repmat, numel, switch, inline, @}
+}
+% -- la commande mtlb sans bordure
+\newcommand{\mtlb}[1]{\lstinline!#1!}
+% -- la commande mtlbbox comme mtlb mais avec une boite
+\newcommand{\mtlbbox}[1]{\tikz[anchor=base, baseline]{\node[draw=mtlbtext,rounded corners=3pt,top color=white,bottom color=mtlbtext!10,minimum width=7mm]{\vphantom{H}{\lstinline!#1!}\vphantom{p}};}}
+% -- l'environement matlab, peut être utiliser dans minipage 
+\lstnewenvironment{matlab}
+    {\lstset{   
+                basicstyle=\color{mtlbtext}\ttfamily\small,
+                frame=single,
+                frameround=tttt,
+                framesep=7pt,
+                rulecolor=\color{gray}
+            }
+    }{}
+% -- les commande dans l'IDE de Matlab
+\newcommand{\cmd}[1]{{\color{cmdtext}\texttt{#1}}}
+\newcommand{\cmdbox}[1]{\tikz[anchor=base, baseline]{\node[draw=cmdtext!50,rounded corners=3pt,top color=white,bottom color=cmdtext!10]{\vphantom{H}\cmd{#1}\vphantom{p}};}}
+
+% -- notion
+\newcommand{\notion}[1]{{\color{notion}\textsf{#1}}}
+
+% -- environement attention
+\newcommand{\attention}[2]{
+\begin{center}
+    \tikz{\node[color=black,draw=attention!50,rounded corners=7pt,top color=attention!2,bottom color=attention!1,text width=14cm,align=#1,inner sep=4mm]{#2};}
+\end{center}
+}
+
+% -------------- haut de la page
+\pagestyle{empty}
+\newcommand{\hautdepage}[1]{
+    \thispagestyle{empty}
+    \clearpage
+    \textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ année, option Mathématiques} \hfill \textsc{\large 2012-2013}\\
+    \textsc{M65, Analyse numérique matricielle}
+
+    \begin{center}
+        \rule[0.5ex]{\textwidth}{0.1mm}
+        \vskip 3mm
+        {\sc{\Large #1}}
+        \rule[0.5ex]{\textwidth}{0.1mm}
+    \end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hautdepage{TP1 : Exercices d'introduction à Matlab}
+
+Vous êtes invités à créer un répertoire \cmd{TP1} et un fichier \cmd{.m} pour chacun des exercices ci-dessous (comportant les lignes de code correspondant à la résolution de l'exercice). 
+
+\attention{center}{En cas de blocage, commencez toujours par regarder l'aide !!}
+
+%-----------------------------
+\begin{exo}\startnewline
+    On fixe tout d'abord $n=8$. On pourra à la fin vérifier que le programme fonctionne avec d'autres valeurs de $n$.
+    Si cela n'est pas précisé dans la question, aucune boucle ne doit être utilisée.
+    \begin{enumerate}
+        \item Créer  le vecteur \mtlb{x} des nombres impairs compris entre 1 et  $n$ (ordonnés).
+
+        \item Créer  le vecteur \mtlb{y} des nombres pairs compris entre 1 et  $n$ (ordonnés).
+
+        \item Créer le vecteur colonne \mtlb{z} contenant les valeurs de \mtlb{x} suivies des valeurs de \mtlb{y}.
+
+        \item Créer la matrice \mtlb{A} définie par $A_{i,j}=n(i-1)+j$ pour $1\leq i,j\leq n$. On pourra ici s'autoriser des boucles \mtlb{for}.
+
+        \item Comparer la matrice \mtlb{A} avec les matrices \mtlb{B} et \mtlb{C} définies par
+\begin{matlab}
+    for i=1:n
+        B(i,:)=n*(i-1)+(1:n);
+    end
+    C=ones(n,1)*(1:n)+n*(0:n-1)'*ones(1,n);
+\end{matlab}
+        Justifier les résultats obtenus.
+
+        \item Tester les commandes \mtlb{A*x}, \mtlb{A*y}, \mtlb{A*z}, \mtlb{z'*A}, \mtlb{A'*z}. Expliquer les résultats obtenus.
+
+        \item Que fait la commande \mtlb{A(x,y)=zeros(length(x),length(y))} ?\\
+            Puis suivie de \mtlb{A(y,x)=zeros(length(y),length(x))} ?
+
+        \item La matrice \mtlb{A} contient maintenant un certain nombre de zéros. Remplacez-les par la valeur -5.
+
+        \item Calculer le déterminant de \mtlb{A}, ses valeurs propres et ses vecteurs propres. Tester la commande \mtlb{inv(A)}
+    \end{enumerate}
+\end{exo}
+\clearpage
+
+%-----------------------------
+\begin{exo}
+A l'aide de la fonction \mtlb{plot}, réaliser le graphique suivant (avec titre et légende) :
+    \begin{center}
+        \includegraphics[height=5.4cm]{figex2.png}
+    \end{center}
+    L'ellipse est représentée en rouge, le cercle en bleu et la fonction $\arctan$ en noir.
+\end{exo}
+
+%-----------------------------
+\begin{exo}
+    A l'aide des fonctions \mtlb{logspace} et \mtlb{loglog}, réaliser le graphique suivant  :
+    \begin{center}
+        \includegraphics[height=5.4cm]{figex3.png}
+    \end{center}
+    La première courbe est représentée en bleu, la seconde en rouge et la dernière en vert.
+\end{exo}
+
+%-----------------------------
+\begin{exo} 
+    Soient $a,b$ et $c$ les longueurs des côtés d'un triangle. Créer une fonction
+    \mtlb{airetriangle} qui prend $a,b$ et $c$ en arguments d'entrée, et qui donne
+    en sortie l'aire du triangle. On rappelle que : \\
+    $$
+    {Aire\, }^4=\ds \Bigl(s(s-a)(s-b)(s-c)\Bigl)^2, \mbox { avec } s=\ds \frac{a+b+c}{2}. \\
+    $$
+\end{exo}
+
+%-----------------------------
+\begin{exo} 
+    La suite de Fibonacci est définie par récurrence : \\
+        $$
+        \left\{
+            \begin{array}{lcl}
+                f_1&=&0 ,\\
+                f_2&=&1 , \\
+                f_n&=&f_{n-1}+f_{n-2}, \quad n \geq 3
+            \end{array}
+        \right.
+        $$
+    \vspace{-0.0cm}
+    Créer une fonction qui prend $n$ en entrée et qui retourne en sortie la valeur $f_n$.
+\end{exo}
+\clearpage
+
+%-----------------------------
+\begin{exo}\startnewline
+    \begin{enumerate}
+        \item A l'aide des fonctions \mtlb{eye}, \mtlb{ones} et \mtlb{diag}, écrire une unique instruction qui permet de définir la matrice carrée \mtlb{A} d'ordre $n \times n$ suivante : 
+            $$
+            \left(
+                \begin{array}{ccccc}
+                    -1      & \ddots    & \ddots    & \ddots    & \vdots    \\
+                    2       & -1        & 0         & \cdots    & 0         \\
+                    0       & \ddots    & \ddots    & \ddots    & 0         \\
+                    \vdots  & \ddots    & \ddots    & \ddots    & -1        \\
+                    0       & \cdots    & 0         & -1        & 2         \\
+                \end{array}
+            \right)_{\ds n \times n}
+            $$
+
+        \item Redéfinir \mtlb{A} en utilisant la fonction \mtlb{gallery} avec paramètre \mtlb{tridiag}.
+
+        \item On s'intéresse maintenant à la résolution approchée du problème
+        $$
+        \begin{gathered}
+            -u''(x)+c(x)u(x)=f(x)\\
+            u(0)=u(1)=0.
+        \end{gathered}
+        $$
+        On prendra ici $c(x)=x$ et $f(x)=(\pi^2+x)\sin(\pi x)$, de sorte que $u(x)=\sin(\pi x)$ est une solution exacte du problème.
+        \begin{enumerate}
+            \item Définir les fonctions \mtlb{c} et \mtlb{f}.
+
+            \item Définir \mtlb{h}, $h=1/(n+1)$.
+
+            \item Définir le vecteur \mtlb{X} tel que $X_i=ih$ pour $1\leq i\leq n$ puis le vecteur \mtlb{F} tel que $F_i=f(X_i)$ pour $1\leq i\leq n$.
+
+            \item Définir la matrice \mtlb{D} diagonale, telle que $D_{ii}=c(X_i)$, puis $M=A/h^2+D$.
+
+            \item Calculer \mtlb{U} solution du système linéaire $MU=F$. On utilisera pour cela le pivot de Gauss de Matlab \mtlb{\\}\,.
+
+            \item Représenter le vecteur \mtlb{U} en fonction du vecteur \mtlb{X} et sur le même graphique la solution exacte $u$.
+
+        \end{enumerate}
+    \end{enumerate}
+\end{exo}
+
+\end{document}
