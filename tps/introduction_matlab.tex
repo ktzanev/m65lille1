@@ -1,0 +1,852 @@
+\documentclass[a4paper,12pt]{amsart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[top=21mm,left=28mm,right=21mm,bottom=28mm,nohead,footskip=14mm]{geometry}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{pifont}
+\usepackage{color}
+\usepackage{enumitem}
+\usepackage{listings}
+%\usepackage{graphicx}
+\usepackage{tikz}
+
+
+% -------------- Set page layout
+\pagestyle{plain}
+\parskip=1mm
+\parindent=0mm
+\renewcommand{\baselinestretch}{1.3}
+
+% -------------- set enumerate style
+%-- redefine defaults with enumitem package
+\setenumerate{itemsep=1mm,topsep=1mm,parsep=1mm,partopsep=0pt}
+%-- redefine the first level
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+%-- redefine the second level
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii)}
+%-- define (my)dinglist
+\newenvironment{mydinglist}
+	{\begin{itemize}\renewcommand\labelitemi{\ding{224}}}
+	{\end{itemize}}
+
+% -------------- theorems
+%\theoremstyle{definition}
+\newtheorem{exo}{Exercice}
+\newcommand{\startnewline}{\ \par} % a mettre juste après \begin{exo} ou \section{...} pour passer à la ligne
+
+% -------------- standard notations
+% --- sets
+\def\N{\mathbb{N}}
+\def\R{\mathbb{R}}
+\def\C{\mathbb{C}}
+% --- matrix
+\newcommand{\MN}{{\mathcal{M}}_n}
+% ---- set {a,...,b}
+\newcommand{\ens}[2]{\lbrace #1,\,\ldots,\, #2 \rbrace}
+
+% -------------- display style
+\def\ds{\displaystyle}
+
+% -------------- matlab
+% --- colors using 'colors' package
+\definecolor{mtlbcmd}{rgb}{1,0,0}
+\definecolor{mtlbtext}{rgb}{0,0,1}
+\definecolor{cmdtext}{rgb}{0,0,.5}
+\definecolor{notion}{rgb}{1,0,0}
+\definecolor{attention}{rgb}{1,0,0}
+% --- matlab commands using 'listings' and 'tikz' packages 
+\lstset{	
+	language=matlab,
+	basicstyle=\color{mtlbtext}\ttfamily,
+	keywordstyle=\color{mtlbcmd}\bfseries,
+	showstringspaces=false,
+	tabsize=4,
+	% --- les mots clés qui manque ...
+	morekeywords={helpwin, ones, repmat, numel, switch, inline, @, display, arrayfun}
+}
+% -- la commande mtlb sans bordure
+\newcommand{\mtlb}[1]{\lstinline!#1!}
+% -- la commande mtlbbox comme mtlb mais avec une boite
+\newcommand{\mtlbbox}[1]{\tikz[anchor=base, baseline]{\node[draw=mtlbtext,rounded corners=3pt,top color=white,bottom color=mtlbtext!10,minimum width=7mm]{\vphantom{H}{\lstinline!#1!}\vphantom{p}};}}
+% -- l'environement matlab, peut être utiliser dans minipage 
+\lstnewenvironment{matlab}
+	{\lstset{	
+				basicstyle=\color{mtlbtext}\ttfamily\small,
+  				frame=single,
+  				frameround=tttt,
+  				framesep=7pt,
+  				rulecolor=\color{gray}
+  			}
+	}{}
+% -- les commande dans l'IDE de Matlab
+\newcommand{\cmd}[1]{{\color{cmdtext}\texttt{#1}}}
+\newcommand{\cmdbox}[1]{\tikz[anchor=base, baseline]{\node[draw=cmdtext!50,rounded corners=3pt,top color=white,bottom color=cmdtext!10]{\vphantom{H}\cmd{#1}\vphantom{p}};}}
+
+% -- notion
+\newcommand{\notion}[1]{{\color{notion}\textsf{#1}}}
+
+% -- environement attention
+\newcommand{\attention}[2]{
+\begin{center}
+	\tikz{\node[color=black,draw=attention!50,rounded corners=7pt,top color=attention!2,bottom color=attention!1,text width=14cm,align=#1,inner sep=4mm]{#2};}
+\end{center}
+}
+
+% -------------- haut de la page
+\newcommand{\hautdepage}[1]{
+%	\thispagestyle{empty}
+%	\clearpage
+	\textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ année, option Mathématiques} \hfill \textsc{\large 2012-2013}\\
+	\textsc{M65, Analyse numérique matricielle}
+
+	\begin{center}
+		\rule[0.5ex]{\textwidth}{0.1mm}
+		\vskip 3mm
+		{\sc{\Large #1}}
+		\rule[0.5ex]{\textwidth}{0.1mm}
+	\end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hautdepage{Introduction à Matlab}
+
+L'objectif de ces quelques pages est d'apporter une aide pour débuter avec Matlab, en particulier pour mettre en {\oe}uvre ensuite des méthodes numériques. Pour aller plus loin, profitez de l'efficacité de l'aide de Matlab.
+
+MATLAB (MATrix LABoratory) est un logiciel de calcul numérique ; les matrices (à coefficients réels ou complexes) en sont l'outil de base.\\
+Comme les langages de programmation tels que Pascal, Fortran ou C, il possède les structures algorithmiques habituelles comme \mtlb{for, while, if ...}. Il comporte également
+\begin{itemize}
+	\item des opérations et des fonctions de calcul numérique;
+
+	\item un environnement graphique permettant la visualisation bi- ou tri-dimensionnelle de données numériques.
+\end{itemize}
+
+
+%=======================================================
+\section{Pour commencer}
+
+
+%-------------------------------------------------------
+\subsection{L'environnement}\startnewline
+
+Parmi les fenêtres de l'environnement MATLAB, notons celles intitulées :
+\begin{enumerate}
+	\item \cmdbox{Command Window} : il s'agit de la fenêtre dans laquelle on tape des commandes Matlab;
+	\item \cmdbox{Workspace} : il s'agit de la fenêtre où figure la liste des variables actuellement en mémoire;
+
+	\item \cmdbox{Current Directory} : il s'agit de la fenêtre contenant la liste des fichiers et ré\-per\-toi\-res présents dans le répertoire dont le chemin est précisé en haut de la fenêtre. Il est souhaitable de toujours commencer par se placer dans son répertoire de travail, puis éventuellement dans des sous-dossiers pour chacun des TPs.
+\end{enumerate}
+
+On verra par la suite d'autres fenêtres telles que l'éditeur de fichiers ou les figures.
+
+
+%-------------------------------------------------------
+\subsection{L'aide}\startnewline
+
+Matlab dispose d'une aide (en anglais) sous plusieurs formes :
+
+\begin{mydinglist}
+
+	\item En tapant \mtlbbox{help nom_de_commande} dans la fenêtre de commande, on obtient une information succincte concernant le fonctionnement de la commande \mtlb{nom_de_commande}. On peut également ouvrir la fenêtre d'aide avec \mtlbbox{helpwin nom_de_commande} ou en appuyant sur \cmdbox{F1} (le curseur étant sur la fonction recherchée).
+
+	\item En activant l'aide (menu déroulant ou \mtlb{helpwin}), on pourra aller dans :
+	\begin{itemize}
+		\item \cmd{Function Browser} si on connaît le nom de la commande (directement avec \cmdbox{Maj+F1});
+
+		\item \cmd{Contents > MATLAB}, où un parcours balisé devrait vous fournir les informations cherchées.
+		On pourra s'intéresser particulièrement à :
+		\begin{itemize}
+			\item \cmd{Getting Started} pour de nombreuses informations de base,
+			
+			\item \cmd{Functions} où figurent les fonctions classées par catégories,
+
+			\item \cmd{Demos} pour voir sur quelques exemples certains aspects de Matlab;
+			
+			\item \cmd{User Guide} où il y a plusieurs rubriques intéressantes comme : \cmd{Mathematics} pour les manipulations mathématiques possibles; \cmd{Programming Fundamentals > Basic Program Components} pour quelques notions de bases utilisées dans un programme Matlab (en particulier l'algorithmique); \cmd{Programming Fundamentals > Functions and Scripts} pour l'utilisation des M-Files; \cmd{Graphics > Plots and Plotting Tools} et \cmd{Graphics > Basic Plotting Commands} pour le graphisme.
+		\end{itemize}
+	\end{itemize}
+\end{mydinglist}
+
+
+%-------------------------------------------------------
+\subsection{Informations utiles}\startnewline
+\begin{mydinglist}
+	\item On retrouve les commandes antérieures à l'aide des flèches \cmdbox{$\uparrow$} et \cmdbox{$\downarrow$}.
+
+	\item L'interruption d'un programme se fait par \cmdbox{ctrl+c}\,.
+
+	\item Des constantes existent en Matlab :
+	\mtlb{eps} valant $2^{-52}\!\approx\! 2.10^{-16}$, \mtlb{pi} une valeur (approchée) de $\pi$.
+\end{mydinglist}
+
+
+%-------------------------------------------------------
+\subsection{A savoir pour programmer}\startnewline
+
+\begin{mydinglist}
+	\item Matlab distingue les majuscules et les minuscules.
+
+	\item Il n'y a pas de déclaration de variables ; les variables utilisées dans une suite de commandes Matlab peuvent même changer de type en cours de ``programme''.\\
+	Chaque fois qu'une variable est créée par une affectation ({\em cf} ci-dessous), dans la fenêtre de commande ou dans un script ({\em cf} 2.1.), elle est ``stockée'' dans le \cmd{Workspace}.\\
+	Pour faire afficher la liste des variables stockées, taper \mtlb{whos}. 
+	Pour réinitialiser (déstocker) une liste de ces variables, faire :
+	\mtlb{clear variable1, variable2, variable3}\\
+	Pour toutes nettoyer la mémoire (déstocker tous les variables) taper \mtlbbox{clear} ou \mtlb{clear all}.
+	
+
+	\item L'affectation se fait par l'intermédiaire du symbole \mtlbbox{=} :\\
+	\mtlb{nomvariable = <expression>}, où le résultat de l'{\it expression} peut être un scalaire, une matrice, une fonction...
+
+	\item En Matlab, les séparateurs de commandes sont : le saut de ligne (touche entrée), la virgule ou le point virgule.
+	L'absence du symbole \mtlbbox{\;} à la suite d'une instruction d'affectation provoque l'affichage à l'écran du nom de la variable et de son contenu.\\
+	Une commande peut être poursuivie sur la ligne suivante en plaçant 3 points consécutifs à la fin de la ligne.
+
+	\item Dans le cas d'une division par 0 par exemple, Matlab donne un résultat : le résultat de $1/0\,$ est \mtlb{Inf}, celui de $-1/0\,$ est \mtlb{-Inf}, celui de $0/0\,$ est \,\mtlb{NaN} (Not a Number). Matlab pourra même poursuivre des calculs avec de tels résultats.
+	
+	\item Pour produire un affichage qui n'est pas celui par défaut on peut utiliser les commandes \mtlbbox{display}, éventuellement en combinaison avec \mtlbbox{sprintf}\,, ou \mtlbbox{fprintf} sans oublier \mtlb{'\\n'} pour la passage à la ligne.\\ 
+		\textsl{Exemples} :\\ 
+		\mtlb{display('Question 1)')} peut être utilisé pour marquer le début d'une question.\\[7pt]
+		$\left.\parbox{7.7cm}{
+			\mtlb{display(sprintf('\%u < \%.2f',1,pi))}\\
+			\mtlb{fprintf('\%u < \%.2f\\n',1,pi)}}
+		\right\}$ sont identiques et affichent \mtlb{1 < 3.14}.\\[7pt]
+		\mtlb{title(sprintf('Le graphe pour k=\%.1f',k))} permet de mettre le titre d'une figure en fonction d'un paramètre \mtlb{k}.
+\end{mydinglist}
+
+
+%=======================================================
+\section{Stockage d'une suite de commandes Matlab}
+
+Il est possible de regrouper une suite de commandes dans des fichiers appelés \cmd{M-files} ; leur nom comporte l'extension \cmd{.m}.\\
+Pour activer l'éditeur de texte, on pourra aller dans \cmd{File/New/M-file} pour créer un nouveau fichier ou cliquer sur le nom du fichier à ouvrir dans la fenêtre \cmd{Current Directory}.\\
+Ne pas oublier de faire une sauvegarde pour prendre en enumie les dernières modifications avant chaque exécution de la suite de commandes en cours d'édition (ou faire \cmd{Debug/Save and Run} pour les scripts seulement (voir plus bas)).
+
+Dans les  M-files, ce qui suit sur une ligne le caractère
+\mtlbbox{\%}, est un commentaire.\\
+Les commentaires placés en début de fichier sont accessibles par la commande \mtlb{help} suivie du nom du fichier.
+
+Il existe deux types de \cmd{M-files} : les scripts et les fonctions.
+
+
+%-------------------------------------------------------
+\subsection{Les scripts}\startnewline
+
+Il s'agit de programmes contenant une suite de commandes travaillant sur les variables du \cmd{Workspace} et qu'on exécute en tapant le nom du fichier dans la fenêtre de commande (ou avec \cmd{Debug/Save and Run}, ou avec la touche \cmdbox{F5} ).
+
+Afin  d'éviter des risques d'interférence, lors de l'exécution d'un script, entre les variables du script et celles présentes dans le \cmd{Workspace} avant l'appel, on placera souvent l'instruction \mtlb{clear} en début de script.
+
+
+%-------------------------------------------------------
+\subsection{Les fonctions}\startnewline
+
+Il s'agit de sous-programmes classiques.
+
+Les fonctions comportent un en-tête de la forme :
+\begin{matlab}
+	function[s1, s2, ...] = nomfonction(e1, e2, ...);
+\end{matlab}
+où \textit{s1,\, s2,\,$\ldots$ } (respectivement \textit{e1,\, e2,\,$\ldots$}) représente les valeurs de sortie (resp. les paramètres d'entrée) de la fonction. Ces paramètres (sortie et entrée) sont séparés par des virgules.
+
+Le \cmd{\sl nom du fichier} contenant une fonction est nécessairement \cmdbox{{\sl nomfonction}.m}
+
+Les paramètres de l'entête sont formels et les autres variables intervenant dans la partie ins\-tructions de la fonction sont locales (sauf mention contraire) ; ils n'ont pas de signification en dehors de la fonction, ni aucun rapport avec une éventuelle variable de même nom dans le \cmd{Workspace}.
+
+On appelle une fonction, dans un script ou dans la fenêtre de commande, par l'instruction~:
+\begin{matlab}
+	[S1, S2] = nomfonction(E1, E2, ...);
+\end{matlab}
+pour obtenir les deux première valeurs de sortie. \newline
+Et pour obtenir seulement la première valeur de sortie on peut faire~:
+\begin{matlab}
+	S1 = nomfonction(E1, E2, ...);
+\end{matlab}
+où on a remplacé les paramètres formels de l'entête par les paramètres effectifs.
+
+Lors d'un appel, la valeur des paramètres effectifs d'entrée (s'ils ne sont pas également para\-mè\-tres effectifs de sortie) n'est pas modifiée (même si dans l'entête de la fonction, un paramètre formel de sortie porte le même nom qu'un paramètre formel d'entrée) ; ils peuvent figurer sous forme d'une constante, d'une variable du \cmd{Workspace} ou d'une expression.
+
+Les paramètres effectifs de sortie sont des variables ; s'il y a moins de paramètres effectifs de sortie que de paramètres formels de sortie, les paramètres effectifs renvoyés correspondent aux premiers paramètres formels de l'entête.
+
+Il est possible de placer plusieurs fonctions dans un même fichier ; toutefois, seule la première est ``visible'' de l'extérieur (les autres ne pouvant qu'être appelées entre elles). Il est donc préférable de se limiter à une fonction par fichier.
+
+\textsl{Exemple :}
+
+% -- le fichier fonction
+\begin{minipage}[t]{.47\textwidth}
+\textit{La fonction du fichier} \mtlb{somProd.m} :
+\begin{matlab}
+function [s,p] = somProd(a,b);
+	s = a+b;
+	p = a*b;
+\end{matlab}
+\end{minipage}\hspace{.04\textwidth}
+% -- le script appelant la fonction
+\begin{minipage}[t]{.47\textwidth}
+\textit{Un script appelant la fonction} :
+\begin{matlab}
+clear
+u = sqrt(2); v = sqrt(3);
+[somme, prod] = somProd(u,v)
+\end{matlab}
+\end{minipage}
+\newpage
+
+%=======================================================
+\section{A la base : les matrices}
+
+Rappelons que c'est l'outil (numérique) de base de Matlab.
+
+Certaines manipulations sur des tableaux de valeurs peuvent être traitées de façon simple et efficace (en temps) en utilisant les possibilités de Matlab comme celles présentées dans cette partie. En particulier, ces outils Matlab permettent, dans certains cas, d'éviter l'utilisation des boucles ``classiques''.
+
+
+%-------------------------------------------------------
+\subsection{Introduction}\startnewline
+
+Une matrice est un tableau à 2 indices, le premier désignant une ligne et le second une colonne. Rappelons que toutes les lignes ont le même nombre de coefficients, et qu'il en est de même pour toutes les colonnes.
+
+\attention{center}{En Matlab, les indices de ligne (resp. de colonne) d'une matrice varient nécessairement entre 1 et le nombre de lignes (resp. de colonnes).}
+
+
+Par la suite, on parlera de \notion{vecteur} ligne si la matrice n'a qu'une ligne et de vecteur colonne si elle n'a qu'une colonne. Une matrice $1\!\times\! 1$ sera considérée comme un \notion{scalaire}.
+
+Si \mtlb{A} est une variable de type matrice (éventuellement un vecteur ou un scalaire), l'ensemble de ses valeurs est accessible par \mtlb{A}.
+
+La valeur du coefficient sur la ligne \mtlb{i} et la colonne \mtlb{j} de \mtlb{A} est : \mtlbbox{A(i,j)}\,.
+
+Si \mtlb{x} est un vecteur, la composante \mtlb{i} de \mtlb{x} (\mtlb{x(1,i)} pour un vecteur ligne, \mtlb{x(i,1)} pour un vecteur colonne) peut également être obtenue par \mtlbbox{x(i)}\, ; ceci s'explique par le fait que Matlab numérote également les coefficients d'une matrice colonne par colonne.
+
+
+%-------------------------------------------------------
+\subsection{Créer une matrice}\startnewline
+
+Matlab offre plusieurs façons de créer une matrice :
+
+\begin{mydinglist}
+	\item Création d'une matrice vide : \mtlb{a=[];}
+
+	\item Création d'un scalaire : \mtlb{s=3.1;}
+
+	\item Création d'une matrice $2\times 2$ composante par composante :
+
+		\textsl{Exemple} : \mtlb{a(1,1)=1.2 ; a(1,2)=4.5 ; a(2,1)=-2 ; a(2,2)=1.2e1 ;}
+
+	\item Création globale :
+
+		\textsl{Exemples} : \mtlb{a=[1.2, 4.5 ; -2, 1.2e1];} ou sans les virgules~: \mtlb{a=[1.2  4.5 ; -2  1.2e1];}
+
+		Ici, le symbole \mtlb{\;} ou le passage à la ligne suivante signifie le passage à la ligne suivante de la matrice \mtlb{a} (ou aux lignes suivantes pour des matrices blocs).
+
+	\item Création globale de quelques matrices particulières :
+		\begin{itemize}
+			\item[] \mtlbbox{zeros} créer une matrice à coefficients $0$. \textsl{Exemples} :
+				\begin{itemize}
+					\item \mtlb{zeros(2,4)} est la matrice nulle $2\!\times 4$;
+					\item \mtlb{zeros(3)} est la matrice nulle d'ordre $3$.
+					\item \mtlb{zeros(size(A))} est la matrice nulle de mêmes dimensions que \mtlb{A}.
+				\end{itemize}
+			\item[] \mtlbbox{eye} créer une matrice identité.
+				\begin{itemize}
+					\item \mtlb{eye(4)} est la matrice identité d'ordre $4$;
+					\item \mtlb{eye(3,2)} est la matrice $3 \times 2$ contenant la matrice identité d'ordre 2 suivi d'une ligne nulle.
+					\item \mtlb{eye(size(A))} est la matrice identité de mêmes dimensions que \mtlb{A}.
+				\end{itemize}
+			\item[] \mtlbbox{ones}. créer la matrice coefficients égaux à $1$.
+				\begin{itemize}
+					\item \mtlb{ones(3,2)} est la matrice $3\times 2$ de coefficients égaux à $1$.
+					\item \mtlb{ones(2)} est la matrice $2\times 2$ de coefficients égaux à $1$.
+				\end{itemize}
+			\item[] \mtlbbox{rand} créer une matrice \textsl{aléatoire}.
+				\begin{itemize}
+					\item \mtlb{rand(3,2)} est une matrice $3\times 2$ à coefficients réels choisis ``aléatoirement'' dans $]0,1[$ (selon la loi uniforme).
+					\item \mtlb{rand(2)*3} est une matrice $2\times 2$ à coefficients réels choisis ``aléatoirement'' dans $]0,3[$.
+				\end{itemize}
+
+			\item[] \mtlbbox{hilb(n)} créer la matrice de Hilbert de taille $n \times n$ qui est connu pour être très mal conditionnée et dont les entrés sont $\frac{1}{i+j-1}$.	
+
+			\item[] $\longrightarrow$ voir l'aide pour d'autres matrices particulières. Par exemple \mtlbbox{gallery} permet de créer différentes matrices.
+		\end{itemize}
+
+	\item Création de vecteurs lignes particuliers :
+		\begin{itemize}
+			\item[] \mtlbbox{x=m:n}\ \ définit un vecteur ligne \mtlb{x} égal à $(m,\,m+1,\,$\ldots$,\,m+k)$ avec $k$ maximal tel que $k \leq n$.
+				\begin{itemize}
+					\item \mtlb{x=1:10}\ \ définit un vecteur ligne \mtlb{x} égal à $(1,\,2,\,\ldots,\,10)$.
+					\item \mtlb{x=0.1:10}\, définit un vecteur ligne \mtlb{x} égal à $(0.1,\,1.1,\,\ldots,\,9.1)$ : valeurs partant de $0.1$ et $\le$10 par pas de $1$.
+					\item \mtlb{x=2:1}\, affecte à \mtlb{x} la matrice vide \mtlb{[]}.
+				\end{itemize}
+			\item[] \mtlbbox{x=m:p:n} définit un vecteur ligne \mtlb{x} égal à $(m,\,m+p,\,\ldots,\,m+kp)$ avec $k$ maximal tel que $m+kp \leq n$.
+				\begin{itemize}
+					\item \mtlb{x=10:-2:0} définit un vecteur ligne \mtlb{x} égal à $(10,\,8,\,\ldots,\,0)$.
+					\item \mtlb{x=0:0.1:1.1}\, définit un vecteur ligne \mtlb{x} égal à $(0,\,0.1,\,\ldots,\,1.1)$ : valeurs partant de $0$ et $\le$1.1 par pas de $0.1$.
+				\end{itemize}
+			\item[] \mtlbbox{x=linspace(m,n,k)}\, affecte à \mtlb{x} le vecteur ligne à $k$ éléments équidistribués entre $m$ et $n$ : (m,\,m+d,\,$\ldots$,\,n)\, où $d=\frac{n-m}{\max\{k-1,1\}} $.
+				\begin{itemize}
+					\item \mtlb{x=linspace(-0.2,1.2,15)} affecte à \mtlb{x} le vecteur ligne $(-0.2,\,-0.1,\,\ldots,\,1.2)$\, c'est-à-dire celui des points de la subdivision régulière de $[-0.2,1.2]$\, à 15 points, bornes comprises.
+				
+					\item[] $\longrightarrow$ voir également la fonction \mtlbbox{logspace} pour un espacement logarithmique.
+				\end{itemize}
+		\end{itemize}
+
+\end{mydinglist}
+\newpage
+
+%-------------------------------------------------------
+\subsection{Construire une matrice à partir d'autres matrices}\startnewline
+
+%-------------------------------------
+\subsubsection{Matrices particulières}\startnewline
+
+\mtlbbox{A'} est la matrice adjointe de \mtlb{A} (c'est-à-dire $(A')_{i,j}=\overline{A_{j,i}}$), qui coïncide avec la matrice transposée pour une matrice à valeurs réelles.
+
+
+\mtlbbox{diag(A)}, pour \mtlb{A} une matrice $n \times m$ avec $n \ge 2,\,m \ge 2$, est le vecteur colonne de coefficients \mtlb{a(1,1),a(2,2),...,a(p,p)}, où $p = \min(n,m)$.\\
+	Plus généralement, voir \mtlb{diag(A,k)}, où \mtlb{k} est un entier, pour la ``diagonale \texttt{k}''.
+	
+
+\mtlbbox{diag(x)}, pour \mtlb{x} un vecteur, est la matrice diagonale (carrée) dont la diagonale correspond au vecteur \mtlb{x}. Plus généralement, voir \mtlb{diag(x,k)}.
+
+Ainsi pour obtenir la matrice diagonale qui a la même diagonale que \mtlb{A} il suffit de faire \mtlb{diag(diag(A))}.
+
+
+\mtlbbox{triu(A)} (resp. \mtlbbox{tril(A)}\,) est la ``partie triangulaire supérieure'' (resp. ``inférieure'') de \mtlb{A}, de mêmes dimensions que \mtlb{A}. Plus généralement, voir \mtlb{triu(A,k)} et \mtlb{tril(A,k)}.
+
+%-------------------------------------
+\subsubsection{Matrices blocs (notion ``généralisée'')}\startnewline
+
+\mtlbbox{[A, B]}, pour \mtlb{A} une matrice $m\!\times\!  n$, et \mtlb{B} une matrice $m\!\times\! p$, est la matrice bloc $m\!\times\! (n+p)$ dont les $n$ premières colonnes sont celles de \mtlb{A} et les $p$ suivantes celles de \mtlb{B}. Autrement dit \mtlb{[A, B]}
+est la matrice obtenu en mettant \mtlb{B} à côté de \mtlb{A}. On peut aussi utiliser \mtlb{[A B]}, sans la virgule.
+
+\mtlbbox{[A; B]}, pour \mtlb{A} une matrice $m\times p$, et \mtlb{B} une matrice $n\!\times\! p$, est la matrice bloc $(m+n)\!\times\! p$ dont les $m$ premières lignes sont celles de \mtlb{A} et les $n$ suivantes celles de \mtlb{B}. Autrement dit \mtlb{[A; B]}
+est la matrice obtenu en mettant \mtlb{B} sous \mtlb{A}.
+
+\mtlbbox{repmat(A,m,n)} permet de construire une matrice par blocs ($m \times n$ blocs de la taille de \mtlb{A}) en répliquant plusieurs fois la même matrice sur les lignes et les colonnes. 
+
+%-------------------------------------
+\subsubsection{Sous-matrices (notion ``généralisée'') }\startnewline
+
+De façon générale, on note \mtlb{A} une matrice $n\!\times\!m$, \mtlb{x} et \mtlb{y} deux vecteurs (ligne ou colonne) à respectivement $p\,$ composantes entières entre 1 et $n\,$ et $q\,$ composantes entières entre 1 et $m$. Alors, \mtlb{A(x,y)} désigne la matrice à $p\,$ lignes et $q\,$ colonnes, de coefficients~:
+\begin{center}
+$
+(\hbox{\mtlb{A(x,y)}})_{i,j} = \hbox{\mtlb{A}}_{x_i,y_j},\quad i\in\ens{1}{p},\ j\in\ens{1}{q}
+$
+\end{center}
+De plus, \mtlbbox{A(:,y)} (resp. \mtlbbox{A(x,:)}) est la matrice formée des colonnes (resp. lignes) de \mtlb{A} repérées par les valeurs des composantes de \mtlb{y} (resp. \mtlb{x}).
+
+Le mot clé \mtlbbox{end} en indice de \mtlb{A} désigne le nombre de lignes ou de colonnes de \mtlb{A} selon qu'il intervient au niveau du premier ou du second indice.
+
+Ajoutons que les extractions de sous-matrices peuvent être affectées c'est-à-dire situées à gauche du symbole \mtlb{=} (lorsque chacun des vecteurs \mtlb{x} et \mtlb{y} est à composantes distinctes).
+
+\textsl{Exemples}:
+
+\begin{itemize}
+	\item[] \mtlb{A(1,3)} est le coefficient ligne 1 colonne 3 de \mtlb{A}.
+
+	\item[]  \mtlb{A(1:3,5)} est le vecteur colonne formé des coefficients des lignes 1, 2 et 3 (\mtlb{1:3} est le vecteur \mtlb{[1,2,3]}) de la colonne 5 de \mtlb{A}.
+
+	\item[]  \mtlb{A(:,4)} est le vecteur colonne égal à la colonne 4 de \mtlb{A}.
+	
+	\item[]  \mtlb{A([1 3 4],:)} est la matrice formée des lignes 1, 3 et 4 de \mtlb{A}.
+	
+	\item[]  \mtlb{A([1 3 4],1:3)} est la matrice d'ordre 3 extraite de \mtlb{A} formée des coefficients situés sur les lignes 1, 3 et 4 et les colonnes 1, 2 et 3.
+	
+	\item[]  \mtlb{A(2:end-1,1)} est le vecteur colonne formé des coefficients de la première colonne de \mtlb{A} à partir du deuxième et jusqu'à l'avant dernier.
+	
+	\item[]  \mtlb{A(ones(1,3),2:3)} est la matrice formée de 3 lignes identiques égales à \mtlb{A(1,2:3)}.
+	
+	\item[]  \mtlb{B(:,[1 4 5])=A(:,1:3)} remplace les colonnes 1, 4 et 5 de \mtlb{B} par les colonnes 1, 2 et 3 de \mtlb{A} pour deux matrices \mtlb{A} et \mtlb{B} ayant le même nombre de lignes (si \mtlb{B} n'existait pas avant l'instruction, elle est créée, ses colonnes 2 et 3 étant nulles).
+	
+	\item[]  \mtlb{A([2 3],:)=A([3 2],:)} permute les lignes 2 et 3 de la matrice \mtlb{A}.
+\end{itemize}
+
+Notons également que si \mtlb{x} est un vecteur (ligne), \mtlb{x(:)} est le vecteur \underline{colonne} des composantes de \mtlb{x}.
+
+
+%-------------------------------------------------------
+\subsection{Opérateurs}\startnewline
+ 
+\mtlbbox{+} \mtlbbox{-}\hfill
+\begin{minipage}[t]{0.87\linewidth}
+	Entre deux matrices de mêmes dimensions, il s'agit de l'addition et la soustraction des matrices. De plus, si l'une des matrices est un scalaire, l'opération aura lieu entre chaque coefficient de la matrice et le scalaire.
+\end{minipage}
+
+\mtlbbox{*}\hfill
+\begin{minipage}[t]{0.87\linewidth}
+	Il s'agit de la multiplication matricielle entre deux matrices lorsque le nombre de colonnes de la première est égal au nombre de lignes de la seconde.  De plus, si l'une des matrices est un scalaire, l'opération aura lieu entre chaque coefficient de la matrice et le scalaire.
+\end{minipage}
+
+\mtlbbox{^}\hfill
+\begin{minipage}[t]{0.87\linewidth}
+	Il s'agit de la puissance matricielle (pour les matrices carrées). Par exemple \mtlb{A^2} est la même chose que \mtlb{A*A}.
+\end{minipage}
+
+\mtlbbox{.*} \mtlbbox{./}\hfill
+\begin{minipage}[t]{0.87\linewidth}
+	Utilisés entre deux matrices de mêmes dimensions, il s'agit de l'opération termes à termes (\textsl{i.e.} entre les coefficients des matrices de même ligne et même colonne). Ainsi par exemple \mtlb{A*eye(size(A))} renvoie, tout comme \mtlb{diag(diag(A))}, la matrice diagonale qui a la diagonale de \mtlb{A}.
+\end{minipage}
+
+\mtlbbox{.^}\hfill
+\begin{minipage}[t]{0.87\linewidth}
+	Utilisé entre deux matrices de mêmes dimensions, il s'agit de l'élévation à la puissance terme à terme. Utilisé entre une matrice et un scalaire, il s'agit de l'élévation à la puissance de chaque coefficient de la matrice par le scalaire.
+\end{minipage}
+
+\mtlbbox{\\}\hfill
+\begin{minipage}[t]{0.87\linewidth}
+	\mtlb{A}\verb+\+\mtlb{B}, où \mtlb{A} désigne une matrice inversible d'ordre $n$ et \mtlb{B} une matrice à $n$ lignes, vaut (une approximation, calculée en général par la méthode de Gauss, de) \mtlb{A}$^{-1}$\mtlb{B}.\\
+	{\bf Attention} : si \mtlb{A} n'est pas carrée, \mtlb{X=A}\verb+\+\mtlb{B} est défini ; il s'agit d'une solution approchée de \mtlb{A*X=B} au sens des moindres carrés.
+\end{minipage}
+
+\mtlbbox{/}\hfill
+\begin{minipage}[t]{0.87\linewidth}
+	\mtlb{B/A}=\mtlb{(A'\\B')'} \ (\textsl{i.e.} \mtlb{B}\mtlb{A}$^{-1}$ si \mtlb{A} est inversible).\\
+	De plus, pour une matrice \mtlb{A} et un scalaire \mtlb{s}, \mtlb{A/s}, tout comme \mtlb{A./s}, correspond à la matrice des coefficients de \mtlb{A} divisés par \mtlb{s}.
+\end{minipage}
+
+
+%-------------------------------------------------------
+\subsection{Dimensions}\startnewline
+
+Si \mtlb{A} est une matrice $n\!\times\! m$ ($n\!\ge\!1,\,m\!\ge\!1$), ses dimensions sont obtenues par :
+\begin{center}
+	\begin{tabular}[t]{lll}
+	   & \mtlbbox{I=size(A)} & \ \mtlb{I} vaut le vecteur ligne \mtlb{[n,m]},\\[7pt]
+	ou & \mtlbbox{[p,q]=size(A)} & \ \mtlb{p} vaut $n$ et \mtlb{q} vaut $m$\\
+	\end{tabular}
+\end{center}
+De plus, \mtlbbox{length(A)} vaut $\max(n,m)$ et \mtlbbox{numel(A)} vaut $nm$, le nombre d'éléments de \mtlb{A}. Donc si \mtlb{x} est un vecteur, aussi bien \mtlbbox{length(x)} que \mtlbbox{numel(x)}, renvoient le nombre de composantes de \mtlb{x}. 
+
+
+%-------------------------------------------------------
+\subsection{Quelques fonctions}\startnewline
+
+Il existe d'autres fonctions que celles présentées ici ; n'hésitez pas à voir l'aide selon vos besoins.
+
+%-------------------------------------
+\subsubsection{Quelques fonctions ``scalaires''}\startnewline
+
+Il s'agit de fonctions usuelles en mathématiques lorsqu'elles sont appliquées à un scalaire.\\
+Avec Matlab, leur application à une matrice correspond à l'application de la fonction à chaque coefficient de la matrice.
+
+\begin{center}
+	\begin{minipage}{11cm}
+		\begin{center}
+\begin{matlab}
+sin 	asin	cos		acos	tan		atan
+sinh	asinh	cosh	acosh	tanh	atanh
+exp		log		log10	log2	sqrt	abs
+\end{matlab}
+		\end{center}
+	\end{minipage}	 	 
+\end{center}
+
+Pour arronir un nombre, ou les coefficient d'une matrice, on peut utiliser : 
+
+\mtlbbox{round(x)} qui renvoie l'entier le plus proche à \mtlb{x};
+
+\mtlbbox{fix(x)} qui renvoie l'entier vers 0 le plus proche à \mtlb{x}.
+Ainsi par exemple \mtlb{fix(rand(3)*(10-eps))} renvoie une matrice aléatoire à coefficients entiers dans $\{0,\ldots,9\}$.
+
+%-------------------------------------
+\subsubsection{Quelques fonctions ``vectorielles''}\startnewline
+
+Lorsqu'elles sont appliquées à un vecteur, ces fonctions renvoient un résultat scalaire ; appliquées à une matrice $n\!\times\! m$ avec $n\!\ge2\,$ et $m\!\ge2$, elles renvoient un vecteur ligne résultat du calcul colonne par colonne.
+
+\mtlbbox{max} est plus grand élément.\\
+Par exemple \mtlb{max([1 2])} est \mtlb{2}, et \mtlb{max([1 2; 3 4])} est \mtlb{[2 4]}. 
+
+\mtlb{[m, I]=max(x)} renvoie en plus \mtlb{I}, le premier indice correspondant au max \mtlb{m}.\\
+Par exemple après \mtlb{[m I]=max([1 7 0])} on a \mtlb{m=7} et \mtlb{I=2}. 
+
+\mtlbbox{min} est le plus petit élément ; elle s'utilise comme \mtlb{max}.\\
+Pour obtenir le plus petit élément d'une matrice \mtlb{A} qui n'est pas un vecteur il faut faire \mtlb{max(max(A))}.
+
+\mtlbbox{sum} est la somme des composantes.\\
+Par exemple \mtlb{sum([1 2; 3 4])} est \mtlb{[4 6]}, et \mtlb{sum(sum([1 2; 3 4]))} est \mtlb{10}.
+
+\mtlbbox{prod} est le produit des composantes. Par exemple \mtlb{prod([1 2; 3 4])} est \mtlb{[3 8]}.
+
+%-------------------------------------
+\subsubsection{Quelques fonctions ``matricielles''}\startnewline
+
+Ces fonctions, généralement basées sur des méthodes numériques, calculent diverses quantités sur des matrices :
+
+\mtlbbox{det(A)} est le déterminant de \mtlb{A}.
+
+\mtlbbox{inv(A)} est la matrice inverse de \mtlb{A}.
+
+\mtlbbox{eig(A)} renvoie le valeurs propres (et vecteurs propres) de \mtlb{A}.
+
+\mtlbbox{null(A)} renvoie une matrices dont les colonnes forment une base du noyau de \mtlb{A}.
+
+\mtlbbox{poly(A)} donne le polynôme caractéristique de \mtlb{A}.
+
+\mtlbbox{norm(x)} est la normes (euclidienne) du vecteur \mtlb{x}, ou plus généralement \mtlb{norm(x,k)} est la norme $\| x \|_{k} $.
+
+\mtlbbox{norm(A)} est la normes matricielle (euclidienne) de \mtlb{A}, ou plus généralement \mtlb{norm(A,k)}, avec \mtlb{k=1}, \mtlb{k=2} ou \mtlb{k=inf}.
+
+\mtlbbox{cond(A)} est le conditionnement (euclidien) de \mtlb{A}, ou plus généralement on peut aussi calculer \mtlb{cond(A,k)}.
+
+\mtlbbox{chol(A)} donne la factorisation de Choleski de la matrice symétrique définie positive \mtlb{A}.
+
+
+%=======================================================
+\section{les (fonctions) polynômes}
+
+Avec Matlab, un polynôme est représenté sous forme d'un vecteur dont les composantes cor\-res\-pondent aux coefficients du polynôme classés par ordre des puissances décroissantes (la dernière composante correspond nécessairement au terme constant, éventuellement nul).
+
+\textsl{Exemple} : \mtlb{P=[ 1, 0,  2, 3]}\, correspond au polynôme $P(X)=X^3+2\,X+3$.
+
+Quelques fonctions :
+
+
+\mtlbbox{roots(P)} est le vecteur colonne des valeurs (approchées) des zéros du polynôme \mtlb{P}.
+
+\mtlbbox{poly(x)} pour un vecteur \mtlb{x}, est le polynôme unitaire (sous la forme d'un vecteur ligne) dont les zéros sont les composantes de \mtlb{x}.
+
+\mtlbbox{polyval(P,A)} pour un polynôme \mtlb{P} et une matrice \mtlb{A}, est la matrice des évaluations de \mtlb{P} en chaque coefficient de \mtlb{A}.
+
+\mtlbbox{polyvalm(P,A)} pour un polynôme \mtlb{P} et une matrice \mtlb{A}, est la matrice $P(A)$.
+
+\mtlbbox{conv(P,Q)} est le produit des deux polynômes \mtlb{P} et \mtlb{Q}
+
+
+%=======================================================
+\section{Quelques notions pour la programmation}
+
+
+%-------------------------------------------------------
+\subsection{Comparaison et connecteurs logiques}\startnewline
+
+%-------------------------------------
+\subsubsection{Les symboles de comparaison}\startnewline
+
+\mtlbbox{<} \mtlbbox{<=}  \mtlbbox{>} \mtlbbox{>=} pour $<$, $\leq$, $>$ et $\geq $.
+
+\mtlbbox{==} égal
+
+\mtlbbox{\~=} différent (n'est pas égal)
+
+Appliqués entre deux scalaires, le résultat d'une comparaison vaut 1 ou 0 selon que la comparaison est vraie ou fausse. Ce résultat est dit de type logique.
+
+\attention{left}{Lorsque la comparaison a lieu entre deux matrices de mêmes dimensions (non scalaires) ou entre une matrice et un scalaire, le résultat est une matrice de type logique ; elle est composée de $0$ et de $1$, résultats des comparaisons coefficient par coefficient ou entre les coefficients et le scalaire.}
+
+Le résultat d'un test dans un \mtlb{if} ou un \mtlb{while} sera vrai si la matrice logique associée au test ne contient \textbf{que} des 1, sinon, il sera faux.
+
+On peut utiliser le fait que le résultat d'une comparaison entre deux matrices ou une matrice et un scalaire est une matrice logique pour extraire certains coefficients : si \mtlb{A} est une matrice et \mtlb{B} une matrice logique de mêmes dimensions, \mtlb{A(B)} est le vecteur colonne des coefficients $A_{i,j}\,$ tels que $\,B_{i,j}=1$, ordonnés selon les colonnes de \mtlb{A}.
+
+\textsl{Exemple} : si \mtlb{x=[2,0,3]} est un vecteur, \mtlb{x(x>0)} est le vecteur colonne dont les composantes sont celles de \mtlb{x} qui sont positives, c'est-à-dire \mtlb{[2; 3]}.
+
+\mtlbbox{any(x)} renvoie \mtlb{1} (vrai) si au moins un élément du vecteur \mtlb{x} est non nul, \mtlb{0} (faux) sinon.
+
+\mtlb{any(A)} est un vecteur ligne qui est le résultat de \mtlb{any} appliqué aux vecteurs colones de \mtlb{A}.
+
+\mtlbbox{all(x)} renvoie \mtlb{1} (vrai) si tous les éléments de \mtlb{x} sont non nuls, \mtlb{0} (faux) sinon.
+
+\mtlb{all(A)} est un vecteur ligne qui est le résultat de \mtlb{all} appliqué aux vecteurs colones de \mtlb{A}.
+
+\textsl{Exemple :} \mtlb{all(any(A>5))} est vrai si dans tous les colones de la matrice \mtlb{A} il a au moins un coefficient $>5$.
+
+Signalons également la fonction \mtlbbox{find} retournant les indices linéaire correspondant à des coefficients non nuls.
+Par exemple \mtlb{find([0 1; 0 1])} va nous donner \mtlb{[2;4]}. Ainsi pour obtenir les indices des coefficients positifs d'un vecteur on peut faire \mtlb{find(x(x>0))}.
+\newpage
+
+%-------------------------------------
+\subsubsection{Les connecteurs logiques}\startnewline
+
+\mtlbbox{&} \ \textbf{et}  logique élément par élément
+
+\mtlbbox{|} \ \textbf{ou}  logique élément par élément
+
+\mtlbbox{&&} \ \textbf{et}  logique scalaire version court-circuit
+
+\mtlbbox{||} \ \textbf{ou}  logique scalaire version court-circuit
+
+\mtlbbox{\~} \ \textbf{négation}
+
+Les connecteurs logiques \mtlb{&&} et \mtlb{||} opèrent sur des valeurs logiques \notion{scalaires} avec \notion{court-circuit} dans l'évaluation de l'expression, c'est-à-dire avec arrêt de l'évaluation des expressions logiques qui suivent dès que le résultat est connu. Par exemple : supposons que \mtlb{x} vaut \mtlb{2.5} et que \mtlb{y} vaut \mtlb{1.3} et considérons l'expression \mtlb{x>5 && y<2}. Puisque $x \le 5$, son résultat sera nécessairement faux et le test $y<2$ ne sera même pas évalué.
+
+Les connecteurs logiques version élément par élément opèrent sur des valeurs logiques pouvant être des matrices de mêmes dimensions (sauf par exemple pour leur utilisation dans un \mtlb{if} ou un \mtlb{while}) avec comme résultat une matrice logique. L'aspect ``cout-circuit'' dépend de leur utilisation.
+
+
+%-------------------------------------------------------
+\subsection{Structures algorithmiques}\startnewline
+
+Les choix \mtlbbox{if ... else ... end}:
+
+% --
+\begin{minipage}[t]{.28\textwidth}
+\begin{matlab}
+if test
+  instructions
+else
+  instructions
+end	
+\end{matlab}
+\end{minipage}\hspace{.07\textwidth}
+% --
+\begin{minipage}[t]{.28\textwidth}
+\begin{matlab}
+if test
+  instructions
+end	
+\end{matlab}
+\end{minipage}\hspace{.07\textwidth}
+% --
+\begin{minipage}[t]{.28\textwidth}
+\begin{matlab}
+if test else
+  instructions
+end	
+\end{matlab}
+\end{minipage}
+ 
+$\longrightarrow$ voir l'aide pour la structure \mtlbbox{switch} permettant un choix entre plus de 2 possibilités.
+
+Les boucles \mtlbbox{while ... end} et \mtlbbox{for ... end}:
+
+% --
+\begin{minipage}[t]{.28\textwidth}
+\begin{matlab}
+while test
+  instructions
+end	
+\end{matlab}
+\end{minipage}\hspace{.07\textwidth}
+% --
+\begin{minipage}[t]{.28\textwidth}
+\begin{matlab}
+for var = expr
+  instructions
+end
+\end{matlab}
+\end{minipage}
+
+Pour la boucle \mtlb{for} de Matlab, la valeur de l'expression \mtlb{expr} est calculée en début de \mtlb{}{for}.
+
+En général, le résultat d'\mtlb{exp} sera un vecteur et la variable \mtlb{var} prendra successivement comme valeurs les composantes du vecteur. Les instructions entre \mtlb{for} et \mtlb{end} seront exécutées avec ces valeurs de \mtlb{var}.
+
+Si le résultat d'\mtlb{exp} est la matrice vide \mtlb{[]}, alors on n'entre pas dans la boucle.
+Si le résultat de \mtlb{exp} est une matrice au sens strict, la variable \mtlb{var} prendra successivement comme valeurs les vecteurs colonnes de \mtlb{exp}.
+
+\textsl{Exemples de boucle} :
+
+% --
+\begin{minipage}[t]{.21\textwidth}
+\begin{matlab}
+for i=1:10
+  x(i)=i^2;
+  y(i)=x(i)+1;
+end
+\end{matlab}
+\end{minipage}\hspace{.07\textwidth}
+% --
+\begin{minipage}[t]{.35\textwidth}
+\begin{matlab}
+x=round(10*rand(1,20));
+a=6;ind=[];
+for i=length(x):-1:1
+  if x(i)==a
+    ind=[ind;i];
+  end
+end
+\end{matlab}
+\end{minipage}\hspace{.07\textwidth}
+% --
+\begin{minipage}[t]{.28\textwidth}
+\begin{matlab}
+som=0; k=0;
+while som<100
+  k=k+1;
+  som=som+k;
+end
+\end{matlab}
+\end{minipage}
+
+\attention{left}{ Lorsque des outils Matlab (les opérations matricielles, les fonctions \mtlb{linspace}, \mtlb{max}, \mtlb{sum} ...) permettent un calcul similaire sans avoir recours aux boucles, le programme sans les boucles sera nettement plus efficace (en temps).}
+
+\textsl{Exemple} : Il est préférable d'écrire le premier exemple précédent sans la boucle \mtlb{for} sous la forme :
+\mtlb{x=(1:10).^2; y=x+1;}
+
+La commande \mtlbbox{break}  arrête une boucle en passant à l'instruction suivant le \mtlb{end} de la boucle où elle apparaît. La commande \mtlbbox{return} permet de sortir d'une fonction (ou d'un script).
+
+ 
+%-------------------------------------------------------
+\subsection{Fonctions \mtlb{inline} et \mtlb{@}}\startnewline
+
+\attention{left}{Lorsque l'on définit une fonction, il est préférable d'utiliser systématiquement les opérateurs terme à terme \mtlb{.*}, \mtlb{./} et \mtlb{.^} au lieu de \mtlb{*}, \mtlb{/} et \mtlb{^}, si l'on veut que cette fonction puisse s'appliquer à des vecteurs et des matrices.}
+
+\mtlbbox{inline} : Cette fonction permet de définir une fonction simple à partir d'une chaîne de ca\-rac\-tères.
+
+\textsl{Exemples} :
+	\begin{minipage}[t]{14cm}
+		\mtlb{f=inline('t.*sin(t)+2')} définit la fonction : $f(t)=t\sin(t)+2$.
+
+		\mtlb{g=inline('exp(x.*y)','x','y')} définit la fonction : $g(x,y)=\exp(xy)$.
+	 \end{minipage}
+Le \mtlb{.*} est ici essentiel : on peut alors évaluer ces fonctions sur des vecteurs ou des matrices:
+\begin{matlab}
+	t=linspace(0,pi,100); y=f(t);}
+	[x,y]=meshgrid(-1:0.1:1,-1:0.1:1); z=g(x,y)}
+\end{matlab}
+
+\mtlbbox{@} : Cette fonction est similaire à \mtlb{inline} mais elle présente l'avantage de pouvoir passer des variables comme paramètres.
+
+\textsl{Exemples} : 
+\begin{minipage}[t]{14cm}
+	\mtlb{a=2; b=3;}
+
+	\mtlb{f=@(x)[a*x+b*sin(x)]} définie la fonction $f(x)=2x+3\sin(x)$;
+
+	\mtlb{g=@(x)[a*x, cos(b*x)]} définie $g(x)=(2x,\cos(3x))$ à valeurs dans $\R^{2}$.
+\end{minipage}
+
+Si une fonction n'est pas prévue pour fonctionner avec des vecteurs (comme par exemple \mtlb{inline('x*x')}) on peut l'appliqué à un vecteur quand même en utilisant \mtlbbox{arrayfun}\,. 
+
+
+%=======================================================
+\section{Un peu de graphisme bidimensionnel}
+
+Matlab permet la visualisation de valeurs numériques dans des fenêtres \cmd{figure}.
+
+Sans précision, c'est dans la \cmd{figure 1} que se font les tracés. On accède à (ou on ouvre) une autre fenêtre, \cmd{figure 2} par exemple, par la commande \mtlb{figure(2)}. La fermeture de la même fenêtre (resp. de toutes les fenêtres \cmd{figure}) peut se faire par la commande \mtlbbox{close(2)} (resp. \mtlb{close all}).
+
+La commande de base pour du graphisme bidimensionnel est \mtlbbox{plot(x,y)}, où \mtlb{x} et \mtlb{y} sont deux vecteurs à composantes réelles de même dimension $n$. Elle ouvre une fenêtre \cmd{figure} (\cmd{figure 1} par défaut) dans laquelle vont figurer les points de coordonnées $(x_1,y_1),\ldots,\,(x_n,y_n)\,$ reliés par des segments de droite dans un repère cartésien. Si \mtlb{y} est une matrice, plusieurs courbes seront tracées (une pour chaque ligne de \mtlb{y}).
+
+Les commandes  \mtlbbox{loglog}, \mtlbbox{semilogx} et \mtlbbox{semilogy} fonctionnent de la même manière que \mtlb{plot} mais avec des échelles logarithmiques en x et y, en x seulement ou en y seulement.
+
+Il est possible d'ajouter des options (spécifications) pour le tracé :
+\begin{itemize}
+
+	\item[]\mtlb{plot(x,y,':or')} : le symbole \mtlb{\:} pour relier les points par des traits en pointillés, le \mtlb{o} pour repérer les points $(x_i,y_i)\,$ par un petit rond et le \mtlb{r} pour un tracé en rouge.
+
+	\item[]\mtlb{plot(x,y,'+')} : ici, l'absence du style de trait dans la spécification provoquera l'absence de trait entre les points (seul le marquage des points par le symbole \mtlb{+} sera effectué).
+
+	\item[] $\longrightarrow$ Voir l'aide dans \mtlb{LineSpec} pour les spécifications possibles.
+\end{itemize}
+
+
+Avec \mtlb{plot}, on peut également tracer plusieurs courbes sur la même figure :
+\begin{itemize}
+\item[]  \mtlbbox{plot(x1,y1,'-vb',x2,y2,':xg')}\, pour tracer sur un même graphe, \mtlb{y1} suivant \mtlb{x1} en bleu par un trait plein avec des symboles $\bigtriangledown$, et \mtlb{y2} suivant \mtlb{x2} en vert par un trait pointillé avec des symboles $\times$.
+\end{itemize}
+
+
+Citons quelques commandes que l'on peut utiliser en les plaçant après la commande \mtlb{plot} :
+
+\mtlbbox{legend('courbe1','courbe2',...)} pour placer une légende pour les différentes courbes;
+
+\mtlbbox{xlabel('texte')} (ou \mtlbbox{ylabel}) pour mettre la signification de l'axe des abscisses (ou des ordonnées);
+
+\mtlbbox{title('texte')} pour donner un titre à la figure;
+
+\mtlbbox{axis([xmin xmax ymin ymax])} pour définir les bornes des deux axes.
+
+
+Si au moins une fenêtre \cmd{figure} est ouverte, la commande \mtlb{plot} effectue le tracé dans la dernière fenêtre \cmd{figure} ouverte, en remplaçant l'éventuel graphe déjà présent dans cette fenêtre. On conseille donc de toujours débuter les programmes par la commande \mtlbbox{close all}.
+
+Une fenêtre \cmd{figure} peut également être partagée en plusieurs zones sous forme d'un tableau pour y faire figurer plusieurs graphes grâce à la commande~:
+
+\mtlbbox{subplot(n,m,pos)} partage la fenêtre des figures en \mtlb{n} lignes et \mtlb{m} colonnes et fix la position de la prochain \mtlb{plot} en la position \mtlb{pos}. 
+
+\end{document}
