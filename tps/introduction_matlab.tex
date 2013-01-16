@@ -7,7 +7,7 @@
 \usepackage{color}
 \usepackage{enumitem}
 \usepackage{listings}
-%\usepackage{graphicx}
+\usepackage{graphicx}
 \usepackage{tikz}
 
 
@@ -95,16 +95,18 @@
 }
 
 % -------------- haut de la page
-\newcommand{\hautdepage}[1]{
+\newcommand{\hautdepage}[2]{
 %	\thispagestyle{empty}
 %	\clearpage
-	\textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ année, option Mathématiques} \hfill \textsc{\large 2012-2013}\\
-	\textsc{M65, Analyse numérique matricielle}
+% ------------------------ logo de l'université
+	\vspace*{-14mm}
+	\includegraphics[height=14mm]{#1}
 
+% ------------------------ titre du document
 	\begin{center}
 		\rule[0.5ex]{\textwidth}{0.1mm}
 		\vskip 3mm
-		{\sc{\Large #1}}
+		{\sc{\Large #2}}
 		\rule[0.5ex]{\textwidth}{0.1mm}
 	\end{center}
 }
@@ -112,7 +114,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\hautdepage{Introduction à Matlab}
+\hautdepage{logoLille1.pdf}{Introduction à Matlab}
 
 L'objectif de ces quelques pages est d'apporter une aide pour débuter avec Matlab, en particulier pour mettre en {\oe}uvre ensuite des méthodes numériques. Pour aller plus loin, profitez de l'efficacité de l'aide de Matlab.
 
