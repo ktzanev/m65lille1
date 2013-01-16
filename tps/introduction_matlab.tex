@@ -637,13 +637,13 @@ On peut utiliser le fait que le résultat d'une comparaison entre deux matrices o
 
 \mtlbbox{any(x)} renvoie \mtlb{1} (vrai) si au moins un élément du vecteur \mtlb{x} est non nul, \mtlb{0} (faux) sinon.
 
-\mtlb{any(A)} est un vecteur ligne qui est le résultat de \mtlb{any} appliqué aux vecteurs colones de \mtlb{A}.
+\mtlb{any(A)} est un vecteur ligne qui est le résultat de \mtlb{any} appliqué aux vecteurs colonnes de \mtlb{A}.
 
 \mtlbbox{all(x)} renvoie \mtlb{1} (vrai) si tous les éléments de \mtlb{x} sont non nuls, \mtlb{0} (faux) sinon.
 
-\mtlb{all(A)} est un vecteur ligne qui est le résultat de \mtlb{all} appliqué aux vecteurs colones de \mtlb{A}.
+\mtlb{all(A)} est un vecteur ligne qui est le résultat de \mtlb{all} appliqué aux vecteurs colonnes de \mtlb{A}.
 
-\textsl{Exemple :} \mtlb{all(any(A>5))} est vrai si dans tous les colones de la matrice \mtlb{A} il a au moins un coefficient $>5$.
+\textsl{Exemple :} \mtlb{all(any(A>5))} est vrai si dans tous les colonnes de la matrice \mtlb{A} il a au moins un coefficient $>5$.
 
 Signalons également la fonction \mtlbbox{find} retournant les indices linéaire correspondant à des coefficients non nuls.
 Par exemple \mtlb{find([0 1; 0 1])} va nous donner \mtlb{[2;4]}. Ainsi pour obtenir les indices des coefficients positifs d'un vecteur on peut faire \mtlb{find(x(x>0))}.
@@ -859,7 +859,7 @@ Ici on va brièvement mentionner seulement les deux premiers, {\color{red}avec un
 %-------------------------------------------------------
 \subsection{Octave}\startnewline
 
-Gnu Octave est un logiciel libre sous licence GNU GPL. C'est un lagunage interprété fortement compatible avec Matlab. Par exemple, tout ce qui est décrit dans ce manuel (à l'exception des descriptifs de l'interface), est valable pour Octave.
+Gnu Octave est un logiciel libre sous licence GNU GPL. C'est un langage interprété fortement compatible avec Matlab. Par exemple, tout ce qui est décrit dans ce manuel (à l'exception des descriptifs de l'interface), est valable pour Octave.
 
 %-------------------------------------
 \subsubsection{Avantages}\startnewline
@@ -876,7 +876,7 @@ Gnu Octave est un logiciel libre sous licence GNU GPL. C'est un lagunage interpr
 \begin{itemize}
 	\item Il est beaucoup moins convivial que Matlab (surtout pour les débutants).
 
-	\item \'A un niveau plus avancé, il n'est pas à 100\% compatible avec la multitude de bibliothèques existantes pour Matlab.
+	\item \`A un niveau plus avancé, il n'est pas à 100\% compatible avec la multitude de bibliothèques existantes pour Matlab.
 
 	\item Il est un peu plus lent que Matlab.
 \end{itemize}
