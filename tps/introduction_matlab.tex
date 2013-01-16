@@ -116,7 +116,7 @@
 
 L'objectif de ces quelques pages est d'apporter une aide pour débuter avec Matlab, en particulier pour mettre en {\oe}uvre ensuite des méthodes numériques. Pour aller plus loin, profitez de l'efficacité de l'aide de Matlab.
 
-MATLAB (MATrix LABoratory) est un logiciel de calcul numérique ; les matrices (à coefficients réels ou complexes) en sont l'outil de base.\\
+MATLAB (MATrix LABoratory) est un logiciel de calcul numérique propriétaire et payant. Les matrices (à coefficients réels ou complexes) en sont l'outil de base.\\
 Comme les langages de programmation tels que Pascal, Fortran ou C, il possède les structures algorithmiques habituelles comme \mtlb{for, while, if ...}. Il comporte également
 \begin{itemize}
 	\item des opérations et des fonctions de calcul numérique;
@@ -189,12 +189,14 @@ Matlab dispose d'une aide (en anglais) sous plusieurs formes :
 \begin{mydinglist}
 	\item Matlab distingue les majuscules et les minuscules.
 
+	\item Dans le cas d'une division par 0 par exemple, Matlab donne un résultat : le résultat de $1/0\,$ est \mtlb{Inf}, celui de $-1/0\,$ est \mtlb{-Inf}, celui de $0/0\,$ est \,\mtlb{NaN} (Not a Number). Matlab pourra même poursuivre des calculs avec de tels résultats.
+
 	\item Il n'y a pas de déclaration de variables ; les variables utilisées dans une suite de commandes Matlab peuvent même changer de type en cours de ``programme''.\\
 	Chaque fois qu'une variable est créée par une affectation ({\em cf} ci-dessous), dans la fenêtre de commande ou dans un script ({\em cf} 2.1.), elle est ``stockée'' dans le \cmd{Workspace}.\\
 	Pour faire afficher la liste des variables stockées, taper \mtlb{whos}. 
 	Pour réinitialiser (déstocker) une liste de ces variables, faire :
 	\mtlb{clear variable1, variable2, variable3}\\
-	Pour toutes nettoyer la mémoire (déstocker tous les variables) taper \mtlbbox{clear} ou \mtlb{clear all}.
+	Pour nettoyer la mémoire (déstocker tous les variables) taper \mtlbbox{clear} ou \mtlb{clear all}.
 	
 
 	\item L'affectation se fait par l'intermédiaire du symbole \mtlbbox{=} :\\
@@ -203,8 +205,6 @@ Matlab dispose d'une aide (en anglais) sous plusieurs formes :
 	\item En Matlab, les séparateurs de commandes sont : le saut de ligne (touche entrée), la virgule ou le point virgule.
 	L'absence du symbole \mtlbbox{\;} à la suite d'une instruction d'affectation provoque l'affichage à l'écran du nom de la variable et de son contenu.\\
 	Une commande peut être poursuivie sur la ligne suivante en plaçant 3 points consécutifs à la fin de la ligne.
-
-	\item Dans le cas d'une division par 0 par exemple, Matlab donne un résultat : le résultat de $1/0\,$ est \mtlb{Inf}, celui de $-1/0\,$ est \mtlb{-Inf}, celui de $0/0\,$ est \,\mtlb{NaN} (Not a Number). Matlab pourra même poursuivre des calculs avec de tels résultats.
 	
 	\item Pour produire un affichage qui n'est pas celui par défaut on peut utiliser les commandes \mtlbbox{display}, éventuellement en combinaison avec \mtlbbox{sprintf}\,, ou \mtlbbox{fprintf} sans oublier \mtlb{'\\n'} pour la passage à la ligne.\\ 
 		\textsl{Exemples} :\\ 
@@ -222,7 +222,7 @@ Matlab dispose d'une aide (en anglais) sous plusieurs formes :
 
 Il est possible de regrouper une suite de commandes dans des fichiers appelés \cmd{M-files} ; leur nom comporte l'extension \cmd{.m}.\\
 Pour activer l'éditeur de texte, on pourra aller dans \cmd{File/New/M-file} pour créer un nouveau fichier ou cliquer sur le nom du fichier à ouvrir dans la fenêtre \cmd{Current Directory}.\\
-Ne pas oublier de faire une sauvegarde pour prendre en enumie les dernières modifications avant chaque exécution de la suite de commandes en cours d'édition (ou faire \cmd{Debug/Save and Run} pour les scripts seulement (voir plus bas)).
+Ne pas oublier de faire une sauvegarde pour prendre en compte les dernières modifications avant chaque exécution de la suite de commandes en cours d'édition (ou faire \cmd{Debug/Save and Run} pour les scripts seulement (voir plus bas)).
 
 Dans les  M-files, ce qui suit sur une ligne le caractère
 \mtlbbox{\%}, est un commentaire.\\
@@ -234,9 +234,11 @@ Il existe deux types de \cmd{M-files} : les scripts et les fonctions.
 %-------------------------------------------------------
 \subsection{Les scripts}\startnewline
 
-Il s'agit de programmes contenant une suite de commandes travaillant sur les variables du \cmd{Workspace} et qu'on exécute en tapant le nom du fichier dans la fenêtre de commande (ou avec \cmd{Debug/Save and Run}, ou avec la touche \cmdbox{F5} ).
+Il s'agit de programmes contenant une suite de commandes travaillant sur les variables du \cmd{Workspace} et qu'on (sauvegarde et) exécute avec la touche \cmdbox{F5} (ou avec le menu \cmd{Debug/Save and Run}, ou encore en tapant le nom du fichier (sans l'extension \cmd{.m}) dans la fenêtre de commande ).
 
-Afin  d'éviter des risques d'interférence, lors de l'exécution d'un script, entre les variables du script et celles présentes dans le \cmd{Workspace} avant l'appel, on placera souvent l'instruction \mtlb{clear} en début de script.
+Il est possible d'exécuter que des parties du script, appelées \cmd{cellules}, qui sont délimitées par des lignes débutant avec \mtlbbox{\%\%} (deux symboles de commentaire). Pour exécuter la cellule dans laquelle se trouve le curseur on utilise la combinaison de touches \cmdbox{Ctrl+Entrée}. Si il n'y a pas de lignes de séparation de cellules, le script entier est considérer comme une cellule, et donc \cmdbox{Ctrl+Entrée} l'exécute, mais à la différence de \cmdbox{F5} le script n'est pas sauvegardé au préalable.
+
+Afin  d'éviter des risques d'interférence, lors de l'exécution d'un script, entre les variables du script et celles présentes dans le \cmd{Workspace} avant l'appel, on placera souvent l'instruction \mtlb{clear} en début de script (ainsi que \mtlb{clc}, pour effacer la fenêtre des commandes, et \mtlb{close} pour fermer les figures ouvertes).
 
 
 %-------------------------------------------------------
@@ -248,34 +250,23 @@ Les fonctions comportent un en-tête de la forme :
 \begin{matlab}
 	function[s1, s2, ...] = nomfonction(e1, e2, ...);
 \end{matlab}
-où \textit{s1,\, s2,\,$\ldots$ } (respectivement \textit{e1,\, e2,\,$\ldots$}) représente les valeurs de sortie (resp. les paramètres d'entrée) de la fonction. Ces paramètres (sortie et entrée) sont séparés par des virgules.
+où \textit{s1,\, s2,\,$\ldots$ } (respectivement \textit{e1,\, e2,\,$\ldots$}) représentent les valeurs de sortie (resp. les paramètres d'entrée) de la fonction. Ces paramètres (sortie et entrée) sont séparés par des virgules.
 
-Le \cmd{\sl nom du fichier} contenant une fonction est nécessairement \cmdbox{{\sl nomfonction}.m}
+Le \cmd{\sl nom du fichier} définissant la fonction \mtlb{MaFonction} est nécessairement \cmdbox{{\sl MaFonction}.m}\,.
 
-Les paramètres de l'entête sont formels et les autres variables intervenant dans la partie ins\-tructions de la fonction sont locales (sauf mention contraire) ; ils n'ont pas de signification en dehors de la fonction, ni aucun rapport avec une éventuelle variable de même nom dans le \cmd{Workspace}.
+Les paramètres de l'en-tête sont formels et les autres variables intervenant dans la partie instructions de la fonction sont locales (sauf mention contraire) ; ils n'ont pas de signification en dehors de la fonction, ni aucun rapport avec une éventuelle variable de même nom dans le \cmd{Workspace}.
 
 On appelle une fonction, dans un script ou dans la fenêtre de commande, par l'instruction~:
 \begin{matlab}
 	[S1, S2] = nomfonction(E1, E2, ...);
 \end{matlab}
-pour obtenir les deux première valeurs de sortie. \newline
-Et pour obtenir seulement la première valeur de sortie on peut faire~:
-\begin{matlab}
-	S1 = nomfonction(E1, E2, ...);
-\end{matlab}
-où on a remplacé les paramètres formels de l'entête par les paramètres effectifs.
-
-Lors d'un appel, la valeur des paramètres effectifs d'entrée (s'ils ne sont pas également para\-mè\-tres effectifs de sortie) n'est pas modifiée (même si dans l'entête de la fonction, un paramètre formel de sortie porte le même nom qu'un paramètre formel d'entrée) ; ils peuvent figurer sous forme d'une constante, d'une variable du \cmd{Workspace} ou d'une expression.
-
-Les paramètres effectifs de sortie sont des variables ; s'il y a moins de paramètres effectifs de sortie que de paramètres formels de sortie, les paramètres effectifs renvoyés correspondent aux premiers paramètres formels de l'entête.
-
-Il est possible de placer plusieurs fonctions dans un même fichier ; toutefois, seule la première est ``visible'' de l'extérieur (les autres ne pouvant qu'être appelées entre elles). Il est donc préférable de se limiter à une fonction par fichier.
+pour obtenir les deux premières valeurs de sortie, où on a remplacé les paramètres formels de l'en-tête par les paramètres effectifs. 
 
 \textsl{Exemple :}
 
 % -- le fichier fonction
 \begin{minipage}[t]{.47\textwidth}
-\textit{La fonction du fichier} \mtlb{somProd.m} :
+\textit{La fonction du fichier} \cmd{somProd.m} :
 \begin{matlab}
 function [s,p] = somProd(a,b);
 	s = a+b;
@@ -291,7 +282,14 @@ u = sqrt(2); v = sqrt(3);
 [somme, prod] = somProd(u,v)
 \end{matlab}
 \end{minipage}
-\newpage
+
+Lors d'un appel, la valeur des paramètres effectifs d'entrée (s'ils ne sont pas également para\-mè\-tres effectifs de sortie) n'est pas modifiée (même si dans l'entête de la fonction, un paramètre formel de sortie porte le même nom qu'un paramètre formel d'entrée) ; ils peuvent figurer sous forme d'une constante, d'une variable du \cmd{Workspace} ou d'une expression.
+
+Les paramètres effectifs de sortie (dans l'exemple \mtlb{S1} et \mtlb{S2}) sont des variables ; s'il y a moins de paramètres effectifs de sortie que de paramètres formels de sortie, les paramètres effectifs renvoyés correspondent aux premiers paramètres formels de l'entête. Ainsi pour obtenir seulement la première valeur de sortie de la fonction \mtlb{somProd} de l'exemple on peut faire~:
+\mtlb{somme = somProd(u, v);}
+
+
+Il est possible de placer plusieurs fonctions dans un même fichier ; toutefois, seule la première est ``visible'' de l'extérieur (les autres ne pouvant qu'être appelées entre elles). Il est donc préférable de se limiter à une fonction par fichier.
 
 %=======================================================
 \section{A la base : les matrices}
@@ -437,9 +435,9 @@ De plus, \mtlbbox{A(:,y)} (resp. \mtlbbox{A(x,:)}) est la matrice formée des col
 Le mot clé \mtlbbox{end} en indice de \mtlb{A} désigne le nombre de lignes ou de colonnes de \mtlb{A} selon qu'il intervient au niveau du premier ou du second indice.
 
 Ajoutons que les extractions de sous-matrices peuvent être affectées c'est-à-dire situées à gauche du symbole \mtlb{=} (lorsque chacun des vecteurs \mtlb{x} et \mtlb{y} est à composantes distinctes).
+\newpage
 
 \textsl{Exemples}:
-
 \begin{itemize}
 	\item[] \mtlb{A(1,3)} est le coefficient ligne 1 colonne 3 de \mtlb{A}.
 
@@ -481,16 +479,6 @@ Notons également que si \mtlb{x} est un vecteur (ligne), \mtlb{x(:)} est le vect
 	Il s'agit de la puissance matricielle (pour les matrices carrées). Par exemple \mtlb{A^2} est la même chose que \mtlb{A*A}.
 \end{minipage}
 
-\mtlbbox{.*} \mtlbbox{./}\hfill
-\begin{minipage}[t]{0.87\linewidth}
-	Utilisés entre deux matrices de mêmes dimensions, il s'agit de l'opération termes à termes (\textsl{i.e.} entre les coefficients des matrices de même ligne et même colonne). Ainsi par exemple \mtlb{A*eye(size(A))} renvoie, tout comme \mtlb{diag(diag(A))}, la matrice diagonale qui a la diagonale de \mtlb{A}.
-\end{minipage}
-
-\mtlbbox{.^}\hfill
-\begin{minipage}[t]{0.87\linewidth}
-	Utilisé entre deux matrices de mêmes dimensions, il s'agit de l'élévation à la puissance terme à terme. Utilisé entre une matrice et un scalaire, il s'agit de l'élévation à la puissance de chaque coefficient de la matrice par le scalaire.
-\end{minipage}
-
 \mtlbbox{\\}\hfill
 \begin{minipage}[t]{0.87\linewidth}
 	\mtlb{A}\verb+\+\mtlb{B}, où \mtlb{A} désigne une matrice inversible d'ordre $n$ et \mtlb{B} une matrice à $n$ lignes, vaut (une approximation, calculée en général par la méthode de Gauss, de) \mtlb{A}$^{-1}$\mtlb{B}.\\
@@ -501,6 +489,16 @@ Notons également que si \mtlb{x} est un vecteur (ligne), \mtlb{x(:)} est le vect
 \begin{minipage}[t]{0.87\linewidth}
 	\mtlb{B/A}=\mtlb{(A'\\B')'} \ (\textsl{i.e.} \mtlb{B}\mtlb{A}$^{-1}$ si \mtlb{A} est inversible).\\
 	De plus, pour une matrice \mtlb{A} et un scalaire \mtlb{s}, \mtlb{A/s}, tout comme \mtlb{A./s}, correspond à la matrice des coefficients de \mtlb{A} divisés par \mtlb{s}.
+\end{minipage}
+
+\mtlbbox{.^}\hfill
+\begin{minipage}[t]{0.87\linewidth}
+	Utilisé entre deux matrices de mêmes dimensions, il s'agit de l'élévation à la puissance terme à terme. Utilisé entre une matrice et un scalaire, il s'agit de l'élévation à la puissance de chaque coefficient de la matrice par le scalaire.
+\end{minipage}
+
+\mtlbbox{.*} \mtlbbox{./}\hfill
+\begin{minipage}[t]{0.87\linewidth}
+	Utilisés entre deux matrices de mêmes dimensions, il s'agit de l'opération termes à termes (\textsl{i.e.} entre les coefficients des matrices de même ligne et même colonne). Ainsi par exemple \mtlb{A*eye(size(A))} renvoie, tout comme \mtlb{diag(diag(A))}, la matrice diagonale qui a la diagonale de \mtlb{A}.
 \end{minipage}
 
 
@@ -809,7 +807,7 @@ Si une fonction n'est pas prévue pour fonctionner avec des vecteurs (comme par e
 
 Matlab permet la visualisation de valeurs numériques dans des fenêtres \cmd{figure}.
 
-Sans précision, c'est dans la \cmd{figure 1} que se font les tracés. On accède à (ou on ouvre) une autre fenêtre, \cmd{figure 2} par exemple, par la commande \mtlb{figure(2)}. La fermeture de la même fenêtre (resp. de toutes les fenêtres \cmd{figure}) peut se faire par la commande \mtlbbox{close(2)} (resp. \mtlb{close all}).
+Sans précision, c'est dans la \cmd{figure 1} que se font les tracés. On accède à (ou on ouvre) une autre fenêtre, \cmd{figure 2} par exemple, par la commande \mtlb{figure(2)}. La fermeture de la même fenêtre (resp. de toutes les fenêtres \cmd{figure}) peut se faire par la commande \mtlb{close(2)} (resp. \mtlbbox{close} ou \mtlb{close all} (ainsi que \mtlb{clear} et \mtlb{clc})).
 
 La commande de base pour du graphisme bidimensionnel est \mtlbbox{plot(x,y)}, où \mtlb{x} et \mtlb{y} sont deux vecteurs à composantes réelles de même dimension $n$. Elle ouvre une fenêtre \cmd{figure} (\cmd{figure 1} par défaut) dans laquelle vont figurer les points de coordonnées $(x_1,y_1),\ldots,\,(x_n,y_n)\,$ reliés par des segments de droite dans un repère cartésien. Si \mtlb{y} est une matrice, plusieurs courbes seront tracées (une pour chaque ligne de \mtlb{y}).
 
@@ -843,10 +841,84 @@ Citons quelques commandes que l'on peut utiliser en les plaçant après la command
 \mtlbbox{axis([xmin xmax ymin ymax])} pour définir les bornes des deux axes.
 
 
-Si au moins une fenêtre \cmd{figure} est ouverte, la commande \mtlb{plot} effectue le tracé dans la dernière fenêtre \cmd{figure} ouverte, en remplaçant l'éventuel graphe déjà présent dans cette fenêtre. On conseille donc de toujours débuter les programmes par la commande \mtlbbox{close all}.
+Si au moins une fenêtre \cmd{figure} est ouverte, la commande \mtlb{plot} effectue le tracé dans la dernière fenêtre \cmd{figure} ouverte, en remplaçant l'éventuel graphe déjà présent dans cette fenêtre. On conseille donc de toujours débuter les programmes par la commande \mtlb{close} (ainsi que \mtlb{clear} et \mtlb{clc}).
 
 Une fenêtre \cmd{figure} peut également être partagée en plusieurs zones sous forme d'un tableau pour y faire figurer plusieurs graphes grâce à la commande~:
 
-\mtlbbox{subplot(n,m,pos)} partage la fenêtre des figures en \mtlb{n} lignes et \mtlb{m} colonnes et fix la position de la prochain \mtlb{plot} en la position \mtlb{pos}. 
+\mtlbbox{subplot(n,m,pos)} partage la fenêtre des figures en \mtlb{n} lignes et \mtlb{m} colonnes et fixe la position du prochain \mtlb{plot} en position \mtlb{pos}.
+
+
+%=======================================================
+\section{Solutions libres}
+
+Il existe plusieurs alternatives libres à Matlab, comme \cmd{Octave}, \cmd{SciLab}, \cmd{Python + NumPy + matplotlib}, \cmd{R} ...
+
+Ici on va brièvement mentionner seulement les deux premiers, {\color{red}avec un point de vue très personnel sur les avantages et les inconvénients pour les étudiants suivant un module de Matlab}.
+
+
+%-------------------------------------------------------
+\subsection{Octave}\startnewline
+
+Gnu Octave est un logiciel libre sous licence GNU GPL. C'est un lagunage interprété fortement compatible avec Matlab. Par exemple, tout ce qui est décrit dans ce manuel (à l'exception des descriptifs de l'interface), est valable pour Octave.
+
+%-------------------------------------
+\subsubsection{Avantages}\startnewline
+\begin{itemize}
+	\item C'est un logiciel libre.
+
+	\item Il est très fortement compatible avec Matlab
+
+	\item Il est multiplateforme (Linux, Mac, Windows, ...)
+\end{itemize}
+
+%-------------------------------------
+\subsubsection{Inconvénients}\startnewline
+\begin{itemize}
+	\item Il est beaucoup moins convivial que Matlab (surtout pour les débutants).
+
+	\item \'A un niveau plus avancé, il n'est pas à 100\% compatible avec la multitude de bibliothèques existantes pour Matlab.
+
+	\item Il est un peu plus lent que Matlab.
+\end{itemize}
+
+%-------------------------------------
+\subsubsection{Comment l'utiliser}\startnewline
+	GNU Octave ne vient pas avec un environnement de programmation intégré, comme Matlab.
+	Donc pour l'utiliser vous pouvez :
+	\begin{itemize}
+		\item soit utiliser votre éditeur de texte favori pour éditer les fichiers \cmd{.m}\,, puis les exécuter avec octave;
+		\item soit installer et utiliser un des environnements existants (voir Wikipedia).
+	\end{itemize}
+	Quand vous lancez l'exécutable \cmd{octave}, vous arrivez dans un environnement équivalent à la fenêtre de commandes de Matlab : toute ligne est immédiatement exécutée en appuyant sur la touche \cmdbox{Entrée}. Ainsi pour exécuter un fichier \cmd{.m} se trouvant dans le répertoire courant, il suffit de taper son nom.
+
+	Il existe des version binaires pour Windows et Mac. On peut en trouver par exemple sur le site de Octave-Forge.
+%-------------------------------------------------------
+\subsection{SciLab}\startnewline
+SciLab est un logiciel libre sous licence CeCILL v2. Son langage de programmation est très proche de Matlab (mais pas autant qu'Octave) et il est fourni avec un environnement de programmation qui imite celui de Matlab.
+%-------------------------------------
+\subsubsection{Avantages}\startnewline
+\begin{itemize}
+	\item C'est un logiciel libre.
+
+	\item Il est plus convivial qu'Octave (surtout pour les débutants).
+
+	\item Il est multiplateforme (Linux, Mac, Windows, ...).
+
+	\item La documentation existe en français.
+\end{itemize}
+
+%-------------------------------------
+\subsubsection{Inconvénients}\startnewline
+
+\begin{itemize}
+	\item Il n'est pas aussi convivial que Matlab (par exemple, les messages d'erreur sont souvent moins compréhensibles qu'en Matlab).
+
+	\item Les scripts Matlab et les bibliothèques Matlab ne sont pas directement compatibles avec SciLab.
+\end{itemize}
+
+%-------------------------------------
+\subsubsection{Comment l'utiliser}\startnewline
+Pour utiliser SciLab à la place de Matlab, il faut adapter des choses (très peu) décrites dans ce document.
+Le travail n'est pas énorme, mais vous ne pouvez pas prendre en général directement vos fichiers \cmd{.m} et les exécuter. Pour vous donner une idée : la constante \mtlb{pi} sous SciLab s'écrit \mtlb{\%pi} et va être considérée comme un commentaire sous Matlab (les commentaires sous SciLab commence par \mtlb{//}\,).
 
 \end{document}
