@@ -55,8 +55,8 @@
 \definecolor{cmdtext}{rgb}{0,0,.5}
 \definecolor{notion}{rgb}{1,0,0}
 \definecolor{attention}{rgb}{1,0,0}
-% --- matlab commands using 'listings' and 'tikz' packages 
-\lstset{    
+% --- matlab commands using 'listings' and 'tikz' packages
+\lstset{
     language=matlab,
     basicstyle=\color{mtlbtext}\ttfamily,
     keywordstyle=\color{mtlbcmd}\bfseries,
@@ -66,9 +66,9 @@
 \newcommand{\mtlb}[1]{\lstinline!#1!}
 % -- la commande mtlbbox comme mtlb mais avec une boite
 \newcommand{\mtlbbox}[1]{\tikz[anchor=base, baseline]{\node[draw=mtlbtext,rounded corners=3pt,top color=white,bottom color=mtlbtext!10,minimum width=7mm]{\vphantom{H}{\lstinline!#1!}\vphantom{p}};}}
-% -- l'environement matlab, peut être utiliser dans minipage 
+% -- l'environement matlab, peut être utiliser dans minipage
 \lstnewenvironment{matlab}
-    {\lstset{   
+    {\lstset{
                 basicstyle=\color{mtlbtext}\ttfamily\small,
                 frame=single,
                 frameround=tttt,
@@ -111,7 +111,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \hautdepage{TP1 : Exercices d'introduction à Matlab}
 
-Vous êtes invités à créer un répertoire \cmd{TP1} et un fichier \cmd{.m} pour chacun des exercices ci-dessous (comportant les lignes de code correspondant à la résolution de l'exercice). 
+Vous êtes invités à créer un répertoire \cmd{TP1} et un fichier \cmd{.m} pour chacun des exercices ci-dessous (comportant les lignes de code correspondant à la résolution de l'exercice).
 
 \attention{center}{En cas de blocage, commencez toujours par regarder l'aide !!}
 
@@ -168,7 +168,7 @@ A l'aide de la fonction \mtlb{plot}, réaliser le graphique suivant (avec titre e
 \end{exo}
 
 %-----------------------------
-\begin{exo} 
+\begin{exo}
     Soient $a,b$ et $c$ les longueurs des côtés d'un triangle. Créer une fonction
     \mtlb{airetriangle} qui prend $a,b$ et $c$ en arguments d'entrée, et qui donne
     en sortie l'aire du triangle. On rappelle que : \\
@@ -178,7 +178,7 @@ A l'aide de la fonction \mtlb{plot}, réaliser le graphique suivant (avec titre e
 \end{exo}
 
 %-----------------------------
-\begin{exo} 
+\begin{exo}
     La suite de Fibonacci est définie par récurrence : \\
         $$
         \left\{
@@ -197,12 +197,12 @@ A l'aide de la fonction \mtlb{plot}, réaliser le graphique suivant (avec titre e
 %-----------------------------
 \begin{exo}\startnewline
     \begin{enumerate}
-        \item A l'aide des fonctions \mtlb{eye}, \mtlb{ones} et \mtlb{diag}, écrire une unique instruction qui permet de définir la matrice carrée \mtlb{A} d'ordre $n \times n$ suivante : 
+        \item A l'aide des fonctions \mtlb{eye}, \mtlb{ones} et \mtlb{diag}, écrire une unique instruction qui permet de définir la matrice carrée \mtlb{A} d'ordre $n \times n$ suivante :
             $$
             \left(
                 \begin{array}{ccccc}
-                    -1      & \ddots    & \ddots    & \ddots    & \vdots    \\
                     2       & -1        & 0         & \cdots    & 0         \\
+                    -1      & \ddots    & \ddots    & \ddots    & \vdots    \\
                     0       & \ddots    & \ddots    & \ddots    & 0         \\
                     \vdots  & \ddots    & \ddots    & \ddots    & -1        \\
                     0       & \cdots    & 0         & -1        & 2         \\
