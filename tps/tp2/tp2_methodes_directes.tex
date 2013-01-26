@@ -1,0 +1,319 @@
+\documentclass[a4paper,12pt]{amsart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[top=21mm,left=28mm,right=21mm,bottom=21mm,nohead,nofoot]{geometry}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{pifont}
+\usepackage{color}
+\usepackage{enumitem}
+\usepackage{listings}
+%\usepackage{graphicx}
+\usepackage{tikz}
+
+
+% -------------- Set page lengths
+\parskip=1mm
+\parindent=0mm
+\renewcommand{\baselinestretch}{1.3}
+
+% -------------- set enumerate style
+%-- redefine defaults with enumitem package
+\setenumerate{itemsep=1mm,topsep=1mm,parsep=1mm,partopsep=0pt}
+%-- redefine the first level
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+%-- redefine the second level
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii)}
+%-- define (my)dinglist
+\newenvironment{mydinglist}
+    {\begin{itemize}\renewcommand\labelitemi{\ding{224}}}
+    {\end{itemize}}
+
+% -------------- theorems
+\theoremstyle{definition}
+\newtheorem{exo}{Exercice}
+\newtheorem*{theo}{Théorème}
+\newcommand{\startnewline}{\ \par} % a mettre juste après \begin{exo} ou \section{...} pour passer à la ligne
+
+% -------------- standard notations
+% --- sets
+\def\N{\mathbb{N}}
+\def\R{\mathbb{R}}
+\def\C{\mathbb{C}}
+% --- matrix
+\newcommand{\MN}{{\mathcal{M}}_n}
+% ---- set {a,...,b}
+\newcommand{\ens}[2]{\lbrace #1,\,\ldots,\, #2 \rbrace}
+
+% -------------- display style
+\def\ds{\displaystyle}
+
+% -------------- matlab
+% --- colors using 'colors' package
+\definecolor{mtlbcmd}{rgb}{1,0,0}
+\definecolor{mtlbtext}{rgb}{0,0,1}
+\definecolor{cmdtext}{rgb}{0,0,.5}
+\definecolor{notion}{rgb}{1,0,0}
+\definecolor{attention}{rgb}{1,0,0}
+% --- matlab commands using 'listings' and 'tikz' packages
+\lstset{
+    language=matlab,
+    basicstyle=\color{mtlbtext}\ttfamily,
+    keywordstyle=\color{mtlbcmd}\bfseries,
+    morekeywords={ones, repmat, numel, switch, inline, @}
+}
+% -- la commande mtlb sans bordure
+\newcommand{\mtlb}[1]{\lstinline!#1!}
+% -- la commande mtlbbox comme mtlb mais avec une boite
+\newcommand{\mtlbbox}[1]{\tikz[anchor=base, baseline]{\node[draw=mtlbtext,rounded corners=3pt,top color=white,bottom color=mtlbtext!10,minimum width=7mm]{\vphantom{H}{\lstinline!#1!}\vphantom{p}};}}
+% -- l'environement matlab, peut être utiliser dans minipage
+\lstnewenvironment{matlab}
+    {\lstset{
+                basicstyle=\color{mtlbtext}\ttfamily\small,
+                frame=single,
+                frameround=tttt,
+                framesep=7pt,
+                rulecolor=\color{gray}
+            }
+    }{}
+% -- les commande dans l'IDE de Matlab
+\newcommand{\cmd}[1]{{\color{cmdtext}\texttt{#1}}}
+\newcommand{\cmdbox}[1]{\tikz[anchor=base, baseline]{\node[draw=cmdtext!50,rounded corners=3pt,top color=white,bottom color=cmdtext!10]{\vphantom{H}\cmd{#1}\vphantom{p}};}}
+
+% -- notion
+\newcommand{\notion}[1]{{\color{notion}\textsf{#1}}}
+
+% -- environement attention
+\newcommand{\attention}[2]{
+\begin{center}
+    \tikz{\node[color=black,draw=attention!50,rounded corners=7pt,top color=attention!2,bottom color=attention!1,text width=14cm,align=#1,inner sep=4mm]{#2};}
+\end{center}
+}
+
+% -------------- haut de la page
+\pagestyle{empty}
+\newcommand{\hautdepage}[1]{
+    \thispagestyle{empty}
+    \clearpage
+    \textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ année, option Mathématiques} \hfill \textsc{\large 2012-2013}\\
+    \textsc{M65, Analyse numérique matricielle}
+
+    \begin{center}
+        \rule[0.5ex]{\textwidth}{0.1mm}
+        \vskip 3mm
+        {\sc{\Large #1}}
+        \rule[0.5ex]{\textwidth}{0.1mm}
+    \end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hautdepage{TP2 : Méthodes directes de résolution de systèmes linéaires}
+
+Vous êtes invités à créer un répertoire \cmd{TP2} et un fichier \cmd{.m} pour chacun des exercices ci-dessous (comportant les lignes de code correspondant à la résolution de l'exercice).
+
+\attention{center}{En cas de blocage, commencez toujours par regarder l'aide !!}
+
+% --------------------------------------------
+\section*{Présentation et indications}
+
+ La première partie du TP est consacrée à la factorisation LU d'une matrice $A$. On rappelle que cette factorisation n'existe que si  toutes les sous-matrices principales de $A$ sont inversibles. Dans une deuxième partie, on s'intéresse à une factorisation avec permutations, de type $PA=LU$. Elle peut s'appliquer à n'importe quelle matrice et être utilisée ensuite pour la résolution des systèmes linéaires.
+
+
+\attention{center}{Pour la programmation en MATLAB, on utilisera au mieux la vectorisation pour éviter toutes les boucles inutiles.}
+
+% --------------------------------------------
+\section{Factorisation LU}
+
+On rappelle tout d'abord l'algorithme de factorisation LU. Il consiste en la construction successive des factorisations LU des $n$ sous-matrices principales.
+\begin{itemize}
+    \item Initialisation : $L_1=1$, $U_1=a_{11}$.
+
+    \item Pour tout $1\leq k\leq n-1$,
+    \begin{equation*}
+        L_{k+1}=
+        \begin{tikzpicture}[scale=0.55, baseline={(0,0.2)}]
+            \draw (-2,-1) rectangle (1,2);
+            \path (-1,1)        node                        {$L_k$}
+                  (0.5,2)       node[below, scale=0.7] (z1) {$0$}
+                  (0.5,0)       node[above, scale=0.7] (z2) {$0$}
+                  (0.5,-0.5)    node[ scale=0.8]            {$1$}
+                  (-1,-0.5)     node                        {$Y$};
+            \draw (-2,0) -- (1,0);
+            \draw (0,-1) -- (0,2);
+            \draw[dotted,thick] (z1) -- (z2);
+        \end{tikzpicture}%
+        \quad \mbox{ et } \quad
+        U_{k+1}=
+        \begin{tikzpicture}[scale=0.55, baseline={(0,0.2)}]
+            \draw (-2,-1) rectangle (1,2);
+            \path
+                 (-1,1)     node                        {$U_k$}
+                 (0.5,1)    node                        {$X$}
+                 (-2,-0.5)  node[right, scale=0.7] (z1) {$0$}
+                 (0,-0.5)   node[left, scale=0.7]  (z2) {$0$}
+                 (0.5,-0.5) node                        {$z$};
+            \draw (-2,0) -- (1,0);
+            \draw (0,-1) -- (0,2);
+            \draw[dotted,thick] (z1) -- (z2);
+        \end{tikzpicture}.%
+    \end{equation*}
+    avec $X \in \mathcal{M}_{k,1}(\R)$, vecteur colonne, $Y\in \mathcal{M}_{1,k}(\R)$, vecteur ligne, et $z \in \R$ solutions de
+    $$
+    \left\{
+        \begin{array}{rlll}
+            L_k X & = & (a_{i,k+1})_{1\leq i\leq k} & \text{ (vecteur colonne)} \\
+            YU_k  & = & (a_{k+1,i})_{1\leq i\leq k} & \text{ (vecteur ligne)}   \\
+            z     & = & a_{k+1,k+1}-YX.             &
+        \end{array}
+    \right.
+    $$
+\end{itemize}
+
+A chaque itération, la matrice $U_k$ est inversible si $z\neq 0$.
+
+\begin{enumerate}
+
+    \item Etant donnés une matrice \mtlb{A}$=[a_{i,j}]$ et un entier \mtlb{k} ($1\leq k\leq n-1$), comment extrait-on avec Matlab le vecteur colonne $(a_{i,k+1})_{1\leq i\leq k}$ ? le vecteur ligne $(a_{k+1,i})_{1\leq i\leq k}$ ?
+
+    \item Programmer la fonction \mtlb{[X] = descente(L,b)} qui résout un système triangulaire infé\-rieur $LX=b$,
+    puis la fonction \mtlb{[X] = remontee(U,b)} qui résout un  système triangulaire supérieur $UX=b$.
+
+    \item Écrire une fonction \mtlb{compare(A,B)} qui vérifie si deux matrices sont identiques à $10^{-10}$ près et affiche en message en fonction. Tester les fonctions \mtlb{descente} et \mtlb{remontee} sur des matrices et des seconds membres de votre choix. Vous pourrez comparer vos résultats avec ceux obtenus avec la commande \mtlbbox{\\} de Matlab.
+
+    \item   Programmer la fonction \mtlb{[L,U] = factolu(A)} qui calcule la factorisation LU d'une matrice \mtlb{A} quand celle-ci existe.
+    On utilisera l'algorithme rappelé ci-dessus. Il peut être programmé de manière itérative (une boucle \mtlb{for}) ou de manière récursive
+    (pas de boucle mais un appel à \mtlb{factolu} à l'intérieur de la fonction). Si la factorisation n'existe pas, on utilisera
+    la fonction \mtlb{error} pour faire afficher un message d'erreur.
+
+    \item Tester \mtlb{factolu} sur des matrices de votre choix (celles vues en cours ou en TD par exemple) et comparer vos résultats avec ceux obtenus avec la commande \mtlbbox{lu} de Matlab. Que constatez-vous ?
+
+    \item Programmer la fonction \mtlb{[X] = resoudre_systeme_lu(A,b)} qui résout le système $AX=b$ en utilisant la factorisation LU de $A$, quand elle existe.
+
+\end{enumerate}
+
+
+% --------------------------------------------
+\section{Factorisation LU avec permutations}
+
+\subsection{Un exercice pour commencer}\startnewline
+
+\textit{Rappel :} Étant donnée une permutation $\sigma $ de $\{1,\ldots ,n\}$ la matrice de permutation $P_{\sigma }\in \MN(\R)$ est définie par $(P_{\sigma })_{i,j}=\delta_{i,\sigma(j)}$ où $\delta_{i,j}}$ est le symbole de Kronecker. Si $\tau$ est la permutation qui échange $i$ et $j$ on note $P_{i,j}$ la matrice $P_{\tau}$.
+
+On se propose pour commencer de démontrer le résultat suivant :
+\begin{theo}
+Soit $A\in {\mathcal M}_n(\R)$, avec $n\geq 2$. Il existe une matrice de permutation $P$, une matrice triangulaire inférieure à diagonale unité $L$ et une matrice triangulaire supérieure $U$ telles que
+$$
+PA=LU.
+$$
+\end{theo}
+On notera que la matrice $A$ n'est pas supposée inversible, et par conséquent la matrice $U$ non plus. Le théorème va se démontrer par récurrence sur $n$.
+
+\begin{enumerate}
+
+    \item Montrer le résultat pour $n=2$. On pourra distinguer les cas : $a_{11}=a_{21}=0$; $a_{11}=0$ et $a_{21}\neq 0$; et finalement $a_{11}\neq 0$.
+
+    \item On suppose maintenant que le résultat est vrai pour toute matrice $A\in {\mathcal M}_n(\R)$. Soit $A\in {\mathcal M}_{n+1}(\R).$
+    \begin{enumerate}
+        \item Soit $\alpha$ le plus grand coefficient en valeur absolue dans la première colonne de $A$. Montrer qu'il existe $r$ tel que
+        $$
+            P_{1,r}\,A=
+                \left(
+                    \begin{array}{cc}
+                        \alpha & v \\
+                        w  & B
+                    \end{array}
+                \right)
+        $$
+        avec $B\in{\mathcal M}_{n,n}(\R)$, $v \in {\mathcal M}_{1,n}(\R)$ et $w \in {\mathcal M}_{n,1}(\R)$ avec $|w_{i}| \leq \alpha $.
+
+        \item En déduire que $P_{1,r}\,A$ peut se factoriser sous la forme
+        $$
+            P_{1,r}\,A=
+                \left(
+                    \begin{array}{cc}
+                          1   & \mathbf{0} \\
+                        m &   I_{n}
+                    \end{array}
+                \right)
+                \left(
+                    \begin{array}{cc}
+                            \alpha     & v \\
+                        \mathbf{0}^{t} & C
+                    \end{array}
+                \right),
+        $$
+        où $\mathbf{0}$ est le vecteur nul de ${\mathcal M}_{1,n}(\R)$.
+        Exprimer $m$ et $C$ en fonction de $\alpha$, $w$, $v$ et $B$ (on pourra distinguer le cas $\alpha=0$ du cas $\alpha\neq 0$).
+
+        \item Soit $P_{n}C=L_{n}U_{n}$ avec $P_{n} \in \MN$ une matrice de permutation, $L_{n}\in \MN$, triangulaire inférieure à diagonale unité, et $U_{n}\in \MN$, triangulaire supérieure. Montrer que
+        $$
+        P_{1,r}\,A=
+            \left(
+                \begin{array}{cc}
+                         1         & \mathbf{0}  \\
+                    \mathbf{0}^{t} & (P_{n})^{t}
+                \end{array}
+            \right)
+            \left(
+                \begin{array}{cc}
+                         1      & \mathbf{0} \\
+                    P_{n} m &   L_{n}
+                \end{array}
+            \right)
+            \left(
+                \begin{array}{cc}
+                        \alpha     &   v   \\
+                    \mathbf{0}^{t} & U_{n}
+                \end{array}
+            \right).
+        $$
+        (On rappelle que $P^{-1}=P^{t}$ pour toute matrice de permutation $P$.)
+        \item En déduire l'expression de $P$, $L$ et $U$ telles que $PA=LU$, en fonction de $r$, $\alpha $, $v$, $m$, $P_{n}$, $L_{n}$ et $U_{n}$.
+    \end{enumerate}
+\end{enumerate}
+
+
+
+\subsection{Programmation de la factorisation avec permutations}
+
+\begin{enumerate}
+
+    \item Étant donnés une matrice \mtlb{A} et deux entiers \mtlb{i} et \mtlb{j}, quel est le résultat de l'instruction Matlab : \mtlb{A([i j],:)=A([j i],:)} ?
+    Qu'obtient-on si on applique cette instruction à la matrice \mtlb{A=eye(n)} ?
+
+    \item Étudier l'application \mtlb{max} de Matlab. Comment obtient-on les valeurs $r$ et $\alpha$  telles que $\alpha=|a_{r1}|$ est le plus grand coefficient en valeur absolue dans la première colonne de $A$ ? Tester sur les matrices suivantes :
+    $$
+        A=
+            \left(
+                \begin{array}{rrrr}
+                     2 & -1 &  0 &  1 \\
+                     1 &  1 &  2 &  1 \\
+                    -4 & -1 & -1 & -2 \\
+                     1 &  1 &  3 &  1
+                \end{array}
+            \right)
+        \text{ et }
+        A=
+            \left(
+                \begin{array}{rrrr}
+                     2 &  1 &   0 &  4 \\
+                     4 &  1 &  -2 &  8 \\
+                    -4 & -2 &   3 & -7 \\
+                     0 &  3 & -12 & -1
+                \end{array}
+            \right)
+    $$
+
+    \item Programmer la fonction \mtlb{[L,U,P] = factolu_avec_perm(A)} en utilisant ce qui a été démontré en 2.1.
+
+    \item Tester votre fonction sur les matrices données ci-dessus ou sur d'autres matrices de votre choix. Comparer les résultats avec ceux obtenus d'une part avec \mtlb{factolu}, d'autre part avec la fonction \mtlb{lu} de Matlab.
+
+    \item Sur la base de la fonction \mtlb{resoudre_systeme_lu} de la première partie créer une fonction \mtlb{resoudre_systeme_plu} en utilisant la factorisation avec permutation de façon à la rendre utilisable pour n'importe quelle matrice inversible.  Si la matrice n'est pas inversible (condition à déterminer sans utiliser la commande \mtlb{det} !), la fonction devra afficher un message d'erreur.
+    Faire des tests.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
