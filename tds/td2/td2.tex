@@ -1,0 +1,290 @@
+\documentclass[a4paper,12pt]{amsart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[top=21mm,left=28mm,right=21mm,bottom=21mm,nohead,nofoot]{geometry}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{color}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tikz}
+
+
+% -------------- Set page lengths
+\parskip=1mm
+\parindent=0mm
+\renewcommand{\baselinestretch}{1.21}
+
+% -------------- set enumerate style
+\setenumerate{itemsep=1mm,topsep=1mm,parsep=1mm,partopsep=0pt}
+%-- Redefine the first level
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+%-- Redefine the second level
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii)}
+
+% -------------- theorems
+\theoremstyle{definition}
+\newtheorem{exo}{Exercice}
+\newcommand{\startnewline}{\ \par} % a mettre juste après \begin{exo} ou \section{...} pour passer à la ligne
+
+% -------------- standard notations
+\def\N{{\mathbb N}}
+\def\R{{\mathbb R}}
+\def\C{{\mathbb C}}
+\newcommand{\MN}{{\mathcal{M}}_n}
+
+% -------------- set {a,...,b}
+\newcommand{\ens}[2]{\lbrace #1,\,\ldots,\, #2 \rbrace}
+
+% -------------- autres
+\def\ds{\displaystyle}
+
+% -------------- matlab
+% --- colors using 'colors' package
+\definecolor{mtlbcmd}{rgb}{1,0,0}
+\definecolor{mtlbtext}{rgb}{0,0,1}
+\definecolor{cmdtext}{rgb}{0,0,.5}
+\definecolor{notion}{rgb}{1,0,0}
+\definecolor{attention}{rgb}{1,0,0}
+% --- matlab commands using 'listings' and 'tikz' packages
+\lstset{
+	language=matlab,
+	basicstyle=\color{mtlbtext}\ttfamily,
+	keywordstyle=\color{mtlbcmd}\bfseries,
+	showstringspaces=false,
+	tabsize=4,
+	% --- les mots clés qui manque ...
+	morekeywords={helpwin, ones, repmat, numel, switch, inline, @, display, arrayfun}
+}
+% -- la commande mtlb sans bordure
+\newcommand{\mtlb}[1]{\lstinline!#1!}
+% -- la commande mtlbbox comme mtlb mais avec une boite
+\newcommand{\mtlbbox}[1]{\tikz[anchor=base, baseline]{\node[draw=mtlbtext,rounded corners=3pt,top color=white,bottom color=mtlbtext!10,minimum width=7mm]{\vphantom{H}{\lstinline!#1!}\vphantom{p}};}}
+% -- l'environement matlab, peut être utiliser dans minipage
+\lstnewenvironment{matlab}
+	{\lstset{
+				basicstyle=\color{mtlbtext}\ttfamily\small,
+  				frame=single,
+  				frameround=tttt,
+  				framesep=7pt,
+  				rulecolor=\color{gray}
+  			}
+	}{}
+
+
+% -------------- haut de la page
+\pagestyle{empty}
+\newcommand{\hautdepage}[1]{
+\thispagestyle{empty}
+\clearpage
+\textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ ann\'ee, option Math\'ematiques} \hfill \textsc{\large 2012-2013}\\
+\textsc{M65, Analyse num\'erique matricielle}
+
+\rule[0.5ex]{\textwidth}{0.1mm}
+\vskip 3mm
+\begin{center}
+{\sc{\Large #1}}
+\end{center}
+\rule[0.5ex]{\textwidth}{0.1mm}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hautdepage{ TD2 : M\'ethodes directes de r\'esolution\newline
+ de syst\`emes lin\'eaires}
+
+{\it Dans cette s\'erie d'exercices, $n$ d\'esigne un entier naturel
+  sup\'erieur ou \'egal \`a 1.}
+
+%-----------------------------------
+\begin{exo}\startnewline
+
+	Soit $A\!\in\!\MN(\R)$ une matrice admettant une factorisation $A=L\,U$ ($L$ triangulaire inf\'erieure \`a diagonale unit\'e et $U$ triangulaire sup\'erieure inversible).  L'objectif de cet exercice est de proposer un algorithme de calcul de  $L$ et $U$ diff\'erent de la m\'ethode d'\'elimination de Gauss vue en cours.
+	\begin{enumerate}
+
+		\item \textit{\underline{\'Etude d'un exemple.}} En identifiant successivement les termes de $A$ et de $LU$ (en suivant l'ordre : ligne 1, colonne 1, ligne 2, colonne 2, ligne 3), d\'eterminer les coefficients inconnus $l_{ij}$ et $u_{kp}$  v\'erifiant :
+		$$
+			A = \left(
+					\begin{array}{rrr}
+						 2 & -2 &  0 \\
+						-4 & -2 & -1 \\
+						 2 & -2 &  2
+			    	\end{array}
+			    \right) =
+				\left(
+					\begin{array}{ccc}
+						  1    &   0    & 0 \\
+						l_{21} &   1    & 0 \\
+						l_{31} & l_{32} & 1
+				    \end{array}
+			    \right)
+			    \left(
+			    	\begin{array}{ccc}
+						u_{11} & u_{12} & u_{13} \\
+						  0    & u_{22} & u_{23} \\
+						  0    &   0    & u_{33}
+			        \end{array}
+		        \right).
+		$$
+
+		\item \textit{\underline{\'Etude du cas g\'en\'eral.}} En appliquant la m\^eme technique d'identifications successives, montrer que   que les coefficients de $L$ et de $U$ sont donn\'es par :
+		$$
+			\begin{array}{l}
+				u_{1j}=a_{1j} \text{ pour }j \in \ens{1}{n},\\[4pt]
+				l_{i1}=\ds\frac{a_{i1}}{u_{11}} \text{ pour } i \in \ens{2}{n},\\[4pt]
+			    \left.%
+			    	\begin{array}{ll}
+			    		u_{kj}=a_{kj}-\ds\sum_{p=1}^{k-1} l_{kp}\,u_{pj} 					&\text{ pour } j \in \ens{k}{n},\\
+			    		l_{ik}=\frac{1}{u_{kk}}(a_{ik}-\ds\sum_{p=1}^{k-1}l_{ip}\,u_{pk}) 	&\text{ pour } i \in \ens{k\!+\!1}{n},
+			    	\end{array}
+			    \right \rbrace
+			    \ k \in \ens{2}{n}.
+			\end{array}
+		$$
+
+		\item D\'eterminer le nombre d'op\'erations (additions et multiplications) n\'ecessaires  pour calculer la factorisation LU de $A$. On se contentera de pr\'eciser le terme de plus haut degr\'e en fonction de $n$.
+
+		\item \mtlb{[Matlab]} \'Etant donn\'es la matrices \mtlb{A}, les matrices \mtlb{L} et \mtlb{U} de la d\'ecomposition $LU$, et un coefficient \mtlb{k} $\in \{2,\ldots ,n\}$, donner une instruction en Matlab qui permet de v\'erifier (sans utilisation de boucle) la condition :
+		$$
+			u_{kj}=a_{kj}-\ds\sum_{p=1}^{k-1} l_{kp}\,u_{pj} \text{ pour } j \in \ens{k}{n}.
+		$$
+
+	\end{enumerate}
+\end{exo}
+\newpage
+
+%-----------------------------------
+\begin{exo}\startnewline
+
+	Soit $N\!\ge\! 3$. On se donne trois vecteurs $a= (a_1,\ldots,a_N)\!\in\!\R^N$, $b=(b_1,\ldots,b_{N-1})\in\R^{N-1}$ et
+	$c= (c_1,\ldots,c_{N-1})\in\R^{N-1}$. On consid\`ere alors la matrice (dite ``fl\`eche'') $A\in\mathcal{M}_N(\R)$ suivante :
+	$$
+		A =
+			\left(
+				\begin{array}{ccccc}
+			    	a_1 	&	  0   	&	\cdots	&	   0   	&	   b_1 		\\
+			        0   	&	 a_2  	&	\ddots	&	 \vdots	&	   b_2 		\\
+			        \vdots	&	\ddots	&	\ddots	&	   0   	&	 \vdots		\\
+			        0  		&	\cdots	&	  0   	&	a_{N-1}	&	b_{N-1} 	\\
+			        c_1 	&	 c_2  	&	\cdots	&	c_{N-1}	&	 a_N
+	        	\end{array}
+	        \right).
+	$$
+	 On suppose que $A$ est inversible et que tous les coefficients de $a$ sont non nuls.
+	\begin{enumerate}
+		\item D\'emontrer que la  factorisation $LU$ de $A$ existe.
+
+		\item Expliciter les matrices $L$ et $U$ telles que $A = LU$.
+
+		\item En d\'eduire \`a quelle condition (sur $a$, $b$ et $c$) la matrice $A$ est inversible.
+
+		\item On suppose d\'esormais que $b=c$. Montrer que $A$ admet une factorisation $A=LDL^t$ avec $L$ triangulaire inf\'erieure \`a diagonale unit\'e et $D$ matrice diagonale.
+
+		\item \mtlb{[Matlab]} \'Etant donn\'es les trois vecteurs lignes \mtlb{a}, \mtlb{b} et \mtlb{c}, donner une instruction en Matlab qui permet de construire la matrice \mtlb{A}.
+
+	\end{enumerate}
+\end{exo}
+
+%-----------------------------------
+\begin{exo}(Factorisations $LU$, $LDL^T$ et de Cholesky : exemple)
+
+	On consid\`ere la matrice :
+	$$
+		A =
+			\left(
+				\begin{array}{cccc}
+			    	1  &   3  &   4  &   1  \\
+			    	3  &  13  &  14  &   5  \\
+			    	4  &  14  &  21  &  11  \\
+			    	1  &   5  &  11  &  12
+		        \end{array}
+		    \right).
+	$$
+	%
+	\begin{enumerate}
+		\item D\'eterminer la matrice triangulaire inf\'erieure $L\,$ avec des $1$ sur la diagonale et la matrice triangulaire sup\'erieure $U\,$ telles que $\,A\!=\!LU$.
+
+		\item On note $D\,$ la matrice diagonale dont les coefficients diagonaux sont ceux de $U$, et $V\!=\!D^{-1}U$.
+		\begin{enumerate}
+			\item V\'erifier que : $\,V\!=\!L^T$.
+
+			\item Comment utiliser les matrices $L\,$ et $D\,$ pour r\'esoudre un syst\`eme lin\'eaire de matrice $A$ ?
+
+			\item Quelles propri\'et\'es de la matrice $D\,$ assurent que l'on peut \'ecrire $D\!=\!\Delta.\Delta$ o\`u $\Delta\,$ est une matrice diagonale \`a coefficients diagonaux r\'eels strictement positifs ?
+
+			\item \textit{[\,Factorisation de Cholesky\,]} Montrer que $A\!=\!B.B^T\,$ pour $B = L.\Delta\,$, puis conclure que la matrice $A$ est sym\'etrique d\'efinie positive.
+
+			\item En d\'eduire la matrice $B$ (valeurs num\'eriques).
+		\end{enumerate}
+
+		\item \mtlb{[Matlab]} \'Etant donn\'ees les matrices \mtlb{L} et \mtlb{U} de la d\'ecomposition $LU$ de $A$, donner une instruction en Matlab qui donne la matrice \mtlb{B} de la factorisation de Cholesky de $A$.
+
+	\end{enumerate}
+\end{exo}
+
+%-----------------------------------
+\begin{exo}\startnewline
+
+	Soit $A=(a_{ij})_{1\leq i,j\leq n}\in\MN(\R)$ et  $A_k=(a_{ij})_{1\leq i,j\leq k}\in \mathcal{M}_k(\R)$ la sous-matrice principale de $A$ de taille $k$. On suppose que $A$ est sym\'etrique d\'efinie positive.
+
+	\begin{enumerate}
+		\item Montrer que, pour tout $1\leq k\leq n$, $A_k$ est sym\'etrique d\'efinie positive.
+	\end{enumerate}
+
+		On se propose ici de démontre que pour tout $1\leq k\leq n$, il existe une unique matrice triangulaire inf\'erieure \`a diagonale strictement positive $B_k\in \mathcal{M}_k(\R)$ telle que $A_k=B_k(B_k)^t$.
+
+	\begin{enumerate}
+		\stepcounter{enumi}
+
+		\item Montrer l'existence, puis calculer la matrice $B_{1}$.
+
+		\item On suppose l'existence et l'unicité de $B_k\in \mathcal{M}_k(\R)$ telle que $A_k=B_k(B_k)^t$.
+		\begin{enumerate}
+
+			\item Montrer que si $B_{k+1}$ existe, elle est n\'ecessairement de la forme
+			\begin{equation*}
+			    B_{k+1}=
+			    \begin{tikzpicture}[scale=0.55, baseline={(0,0.2)}]
+				    \draw (-2,-1) rectangle (1,2);
+				    \path (-1,1) node                   	  {$ B_k $}
+						  (0.5,2) node[below, scale=0.8] (z1) {$ 0 $}
+						  (0.5,0) node[above, scale=0.8] (z2) {$ 0 $}
+						  (0.5,-0.5) node[ scale=0.9]         {$ \alpha $}
+						  (-1,-0.5)node                       {$ Y $};
+					\draw (-2,0) -- (1,0);
+				    \draw (0,-1) -- (0,2);
+				    \draw[dotted,thick] (z1) -- (z2);
+				\end{tikzpicture}
+			\end{equation*}
+			avec $Y\in \mathcal{M}_{1,k}(\R)$, vecteur ligne, et $\alpha \in \R_{+}$.
+
+			\item Quelles \'equations doivent v\'erifier $Y$ et $\alpha$ pour avoir $A_{k+1}=B_{k+1}{(B_{k+1})}^t$ ?
+
+			\item En utilisant que $A_{k+1}$ est d\'efinie positive, montrer que ces \'equations admettent un unique couple solution : $Y\in \mathcal{M}_{1,k}(\R)$ et $\alpha \in \R_{+}$ ?
+
+		\end{enumerate}
+
+		\item Quel résultat du cours on vient de redémontrer ?
+
+		\item \mtlb{[Matlab]} Donner une instruction qui, \`a partir d'un vecteur ligne \mtlb{Y} et d'un coefficient \mtlb{a}, compl\`ete la matrice \mtlb{B} en la matrice :
+		$$
+				\begin{tikzpicture}[scale=0.55]
+				    \draw (-2,-1) rectangle (1,2);
+				    \path (-1,1) node                   	  {\mtlb{B}}
+						  (0.5,2) node[below, scale=0.8] (z1) {\mtlb{0}}
+						  (0.5,0) node[above, scale=0.8] (z2) {\mtlb{0}}
+						  (0.5,-0.5) node[ scale=0.9]         {\mtlb{a}}
+						  (-1,-0.5)node                       {\mtlb{Y}};
+					\draw (-2,0) -- (1,0);
+				    \draw (0,-1) -- (0,2);
+				    \draw[dotted,thick] (z1) -- (z2);
+				\end{tikzpicture}
+ 		$$
+
+	\end{enumerate}
+\end{exo}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
