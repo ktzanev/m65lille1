@@ -1,0 +1,189 @@
+\documentclass[a4paper,12pt]{amsart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[top=21mm,left=28mm,right=21mm,bottom=21mm,nohead,nofoot]{geometry}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{enumitem}
+
+
+% -------------- Set page lengths
+\parskip=1mm
+\parindent=0mm
+\renewcommand{\baselinestretch}{1.3}
+
+% -------------- set enumerate style
+\setenumerate{itemsep=1mm,topsep=1mm,parsep=1mm,partopsep=0pt}
+%-- Redefine the first level
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+%-- Redefine the second level
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii)}
+
+% -------------- theorems
+\theoremstyle{definition}
+\newtheorem{exo}{Exercice}
+
+% -------------- standard notations
+\def\N{{\mathbb N}}
+\def\R{{\mathbb R}}
+\def\C{{\mathbb C}}
+\newcommand{\MN}{{\mathcal{M}}_n}
+
+% -------------- set {a,...,b}
+\newcommand{\ens}[2]{\lbrace #1,\,\ldots,\, #2 \rbrace}
+
+% -------------- autres
+\def\ds{\displaystyle}
+
+% -------------- haut de la page
+\pagestyle{empty}
+\newcommand{\hautdepage}[1]{
+\thispagestyle{empty}
+\clearpage
+\textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ année, option Mathématiques} \hfill \textsc{\large 2012-2013}\\
+\textsc{M65, Analyse numérique matricielle}
+
+\rule[0.5ex]{\textwidth}{0.1mm}
+\vskip 3mm
+\begin{center}
+		{\sc{\Large #1}}
+\end{center}
+\rule[0.5ex]{\textwidth}{0.1mm}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hautdepage{TD1: Quelques éléments d'algèbre matricielle}
+
+
+%-----------------------------------
+\begin{exo}  (Trigonalisation\,/\,diagonalisation)
+	
+	Soit $n \in \N^*$ et $A \in \MN(\C)$.
+	\begin{enumerate}
+		\item Énoncer le théorème de décomposition de Schur.
+		
+		\item  Montrer que $A$ est normale si et seulement si il existe une matrice unitaire $U$ et une matrice diagonale $D$ contenant les valeurs propres de $A$ telles que $A=UDU^*$. On pourra calculer les éléments diagonaux de $TT^*$ et $T^*T$ où $T$ est la matrice triangulaire supérieure telle que $A=UTU^*$ avec $U$ unitaire.
+		
+		\item Montrer que si $A$ est hermitienne, elle est diagonalisable dans une base de vecteurs propres orthogonaux et que ses valeurs propres sont réelles.
+		
+		\item Montrer que si $A$ est unitaire, elle est diagonalisable dans une base de vecteurs propres orthogonaux et que ses valeurs propres ont pour module 1.
+	\end{enumerate}
+\end{exo}
+
+
+%-----------------------------------
+\begin{exo} (Valeurs propres du laplacien)
+	
+	On veut tout d'abord déterminer les couples $(\lambda, v)$, avec $\lambda\in\R$ et $v\in C^2([0,1],\R)$  non identiquement nulle, solutions de
+	\begin{equation}\label{ep}
+		\left\{
+		\begin{array}{l}
+			-v''(x)=\lambda v(x) \mbox{ sur } ]0,1[\\
+			v(0)=v(1)=0
+		\end{array}
+		\right.
+	\end{equation}
+	\begin{enumerate}
+		\item Montrer que si $(\lambda,v)$  satisfait \eqref{ep} alors nécessairement $\lambda >0$ ({\em suggestion} : multiplier l'équation par $v$ puis intégrer sur $[0,1]$). On posera alors $\lambda=\omega^2$ avec $\omega\neq 0$.
+		
+		\item Montrer que les solutions sont de la forme :
+		$$
+		\lambda=(k\pi)^2 , v(x)=C\sin(k\pi x) ,\  k\in \N^{\ast},\ C\in\R^{\ast}.
+		$$
+	\end{enumerate}
+	
+	Soit $N\geq 3$. On considère  $A\in\mathcal{M}_N(\R)$, la matrice de discrétisation du laplacien 1D:
+	$$
+	A=\left(
+	\begin{array}{ccccc}
+		2  		& -1 		& 0 		& \cdots 	& 0 		\\
+		-1 		& \ddots 	& \ddots 	& \ddots 	& \vdots 	\\
+		0  		& \ddots 	& \ddots 	& \ddots 	& 0 		\\
+		\vdots 	& \ddots 	& \ddots 	& \ddots 	& -1 		\\
+		0 		& \cdots 	& 0 		& -1 		& 2 		\\
+	\end{array}
+	\right)
+	$$
+	\begin{enumerate}
+		\setcounter{enumi}{2}
+		\item Montrer que, pour tout $1\leq k\leq N$, le vecteur $V_k=\left(\sin\Bigl(k\pi\ds\frac{i}{N+1}\Bigl)\right)_{1\leq i\leq N}$ est un vecteur propre de $A.$
+		
+		\item Montrer que les valeurs propres de $A$ sont :
+		$$
+		\lambda_k = 4\,\left( \sin\left(\ds\frac{k\,\pi}{2(N+1)}\right) \right) ^2,\quad 1\leq k\leq N
+		$$
+		
+		\item En déduire le rayon spectral de $A$.
+	\end{enumerate}
+\end{exo}
+
+
+%-----------------------------------
+\begin{exo} (Méthode de Gauss)
+	
+	Soit
+	$$
+		A=\left(
+			\begin{array}{rrrr}
+				 2 &  1 &   0 &  4 \\ 
+				 4 &  1 &  -2 &  8 \\ 
+				-4 & -2 &   3 & -7 \\ 
+				 0 &  3 & -12 & -1
+			\end{array}
+		\right),
+		\quad
+		b=\left(
+			\begin{array}{r}
+				2 \\ 2 \\ -9 \\ 2
+			\end{array}
+		\right)
+		\mbox{ et }
+		X=\left(
+			\begin{array}{r}
+				x \\ y \\ z \\ t
+			\end{array}
+		\right)
+	$$
+	\begin{enumerate}
+		\item Écrire le système linéaire $AX=b$, noté $({\mathcal S})$. On note $A^{(1)}=A$ et $b^{(1)}=b$.
+
+		\item Résoudre par la méthode de Gauss le système linéaire $({\mathcal S})$. Pour chaque étape $k$ ($k\in\{1,2,3\}$) de l'élimination,
+		\begin{enumerate}
+			\item préciser la matrice $A^{(k+1)}$ et le second membre $b^{(k+1)}$ tels que $({\mathcal S})$ s'écrit sous la forme $A^{(k+1)}X=b^{(k+1)}$,
+
+			\item donner la matrice $M^{(k)}$ telle que $A^{(k+1)}=M^{(k)}A^{(k)}$.
+
+			\item calculer $L^{(k)}=(M^{(k)})^{-1}$.
+		\end{enumerate}
+
+		\item Donner la matrice triangulaire inférieure $L$ avec des 1 sur la diagonale et la matrice triangulaire supérieure $U$ telles que $A=LU$. En déduire la valeur de $\det(A)$.
+	\end{enumerate}
+\end{exo}
+
+
+%-----------------------------------
+\begin{exo}
+	
+	Soit $n \in \N^*$. On définit $E_{ij}\in\MN(\R)$ la matrice avec un $1$ dans la position $(i,j)$ et $0$ partout ailleurs. On définit ensuite $V_{ij}(\lambda )=I +  \lambda E_{ij}$ , $\lambda \in\R , \,  i>j$.
+	\begin{enumerate}
+		\item Exprimer le produit $E_{ij} \, E_{kl}$ en fonction de $E_{il}$.
+
+		\item Soit $A\in\MN(\R)$. Quels sont les résultats des opérations
+		$V_{ij}(\lambda )A$ et   $AV_{ij}(\lambda ) $ ?
+
+		\item Soit $\lambda,\lambda'\in\R$ et $i,j,k$ tels que $i>j$ et $k>j$. Quelle est la forme de la matrice $V_{ij}(\lambda )V_{kj}(\lambda ') $ ?
+
+		\item En déduire l'expression de $(V_{ij}(\lambda ))^{-1}$.
+
+		\item Soit $B^{(j)}\in \MN(\R)$ définie par $B^{(j)}=\ds\sum_{i=j+1}^n b_{i}^{(j)}E_{ij}$ et $L^{(j)}=I+B^{(j)}$.
+		\begin{enumerate}
+			\item Montrer que $B^{(j)}B^{(k)}=0$ pour tout $j\leq k$.
+			\item En déduire l'expression de $L^{(j)}L^{(k)}$ pour tout $j\leq k$,  puis celle de  $(L^{(j)})^{-1}$.
+		\end{enumerate}
+	\end{enumerate}
+\end{exo}
+
+\end{document}
