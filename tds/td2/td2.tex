@@ -178,7 +178,7 @@
 
 		\item Expliciter les matrices $L$ et $U$ telles que $A = LU$.
 
-		\item En d\'eduire \`a quelle condition (sur $a$, $b$ et $c$) la matrice $A$ est inversible.
+		\item Sous quelle condition sur les vecteurs $a$, $b$ et $c$, la matrice $A$ est inversible ?
 
 		\item On suppose d\'esormais que $b=c$. Montrer que $A$ admet une factorisation $A=LDL^t$ avec $L$ triangulaire inf\'erieure \`a diagonale unit\'e et $D$ matrice diagonale.
 
@@ -188,7 +188,7 @@
 \end{exo}
 
 %-----------------------------------
-\begin{exo}(Factorisations $LU$, $LDL^T$ et de Cholesky : exemple)
+\begin{exo}(Factorisations $LU$, $LDL^t$ et de Cholesky : exemple)
 
 	On consid\`ere la matrice :
 	$$
@@ -208,13 +208,13 @@
 
 		\item On note $D\,$ la matrice diagonale dont les coefficients diagonaux sont ceux de $U$, et $V\!=\!D^{-1}U$.
 		\begin{enumerate}
-			\item V\'erifier que : $\,V\!=\!L^T$.
+			\item V\'erifier que : $\,V\!=\!L^t$.
 
 			\item Comment utiliser les matrices $L\,$ et $D\,$ pour r\'esoudre un syst\`eme lin\'eaire de matrice $A$ ?
 
 			\item Quelles propri\'et\'es de la matrice $D\,$ assurent que l'on peut \'ecrire $D\!=\!\Delta.\Delta$ o\`u $\Delta\,$ est une matrice diagonale \`a coefficients diagonaux r\'eels strictement positifs ?
 
-			\item \textit{[\,Factorisation de Cholesky\,]} Montrer que $A\!=\!B.B^T\,$ pour $B = L.\Delta\,$, puis conclure que la matrice $A$ est sym\'etrique d\'efinie positive.
+			\item \textit{[\,Factorisation de Cholesky\,]} Montrer que $A\!=\!B.B^t\,$ pour $B = L.\Delta\,$, puis conclure que la matrice $A$ est sym\'etrique d\'efinie positive.
 
 			\item En d\'eduire la matrice $B$ (valeurs num\'eriques).
 		\end{enumerate}
