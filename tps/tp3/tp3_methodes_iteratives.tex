@@ -1,0 +1,234 @@
+\documentclass[a4paper,12pt]{amsart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[top=21mm,left=28mm,right=21mm,bottom=21mm,nohead,nofoot]{geometry}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{pifont}
+\usepackage{color}
+\usepackage{enumitem}
+\usepackage{listings}
+%\usepackage{graphicx}
+\usepackage{tikz}
+
+
+% -------------- Set page lengths
+\parskip=1mm
+\parindent=0mm
+\renewcommand{\baselinestretch}{1.3}
+
+% -------------- set enumerate style
+%-- redefine defaults with enumitem package
+\setenumerate{itemsep=1mm,topsep=1mm,parsep=1mm,partopsep=0pt}
+%-- redefine the first level
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+%-- redefine the second level
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii)}
+%-- define (my)dinglist
+\newenvironment{mydinglist}
+    {\begin{itemize}\renewcommand\labelitemi{\ding{224}}}
+    {\end{itemize}}
+
+% -------------- theorems
+\theoremstyle{definition}
+\newtheorem{exo}{Exercice}
+\newtheorem*{theo}{Théorème}
+\newcommand{\startnewline}{\ \par} % a mettre juste après \begin{exo} ou \section{...} pour passer à la ligne
+
+% -------------- standard notations
+% --- sets
+\def\N{\mathbb{N}}
+\def\R{\mathbb{R}}
+\def\C{\mathbb{C}}
+% --- matrix
+\newcommand{\MN}{{\mathcal{M}}_n}
+% ---- set {a,...,b}
+\newcommand{\ens}[2]{\lbrace #1,\,\ldots,\, #2 \rbrace}
+
+% -------------- display style
+\def\ds{\displaystyle}
+
+% -------------- matlab
+% --- colors using 'colors' package
+\definecolor{mtlbcmd}{rgb}{1,0,0}
+\definecolor{mtlbtext}{rgb}{0,0,1}
+\definecolor{cmdtext}{rgb}{0,0,.5}
+\definecolor{notion}{rgb}{1,0,0}
+\definecolor{attention}{rgb}{1,0,0}
+% --- matlab commands using 'listings' and 'tikz' packages
+\lstset{
+    language=matlab,
+    basicstyle=\color{mtlbtext}\ttfamily,
+    keywordstyle=\color{mtlbcmd}\bfseries,
+    morekeywords={ones, repmat, numel, switch, inline, @}
+}
+% -- la commande mtlb sans bordure
+\newcommand{\mtlb}[1]{\lstinline!#1!}
+% -- la commande mtlbbox comme mtlb mais avec une boite
+\newcommand{\mtlbbox}[1]{\tikz[anchor=base, baseline]{\node[draw=mtlbtext,rounded corners=3pt,top color=white,bottom color=mtlbtext!10,minimum width=7mm]{\vphantom{H}{\lstinline!#1!}\vphantom{p}};}}
+% -- l'environement matlab, peut être utiliser dans minipage
+\lstnewenvironment{matlab}
+    {\lstset{
+                basicstyle=\color{mtlbtext}\ttfamily\small,
+                frame=single,
+                frameround=tttt,
+                framesep=7pt,
+                rulecolor=\color{gray}
+            }
+    }{}
+% -- les commande dans l'IDE de Matlab
+\newcommand{\cmd}[1]{{\color{cmdtext}\texttt{#1}}}
+\newcommand{\cmdbox}[1]{\tikz[anchor=base, baseline]{\node[draw=cmdtext!50,rounded corners=3pt,top color=white,bottom color=cmdtext!10]{\vphantom{H}\cmd{#1}\vphantom{p}};}}
+
+% -- notion
+\newcommand{\notion}[1]{{\color{notion}\textsf{#1}}}
+
+% -- environement attention
+\newcommand{\attention}[2]{
+\begin{center}
+    \tikz{\node[color=black,draw=attention!50,rounded corners=7pt,top color=attention!2,bottom color=attention!1,text width=14cm,align=#1,inner sep=4mm]{#2};}
+\end{center}
+}
+
+% -------------- haut de la page
+\pagestyle{empty}
+\newcommand{\hautdepage}[1]{
+    \thispagestyle{empty}
+    \clearpage
+    \textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ année, option Mathématiques} \hfill \textsc{\large 2012-2013}\\
+    \textsc{M65, Analyse numérique matricielle}
+
+    \begin{center}
+        \rule[0.5ex]{\textwidth}{0.1mm}
+        \vskip1mm
+        {\sc{\Large #1}}
+        \rule[0.5ex]{\textwidth}{0.1mm}
+    \end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hautdepage{\vskip-3mm TP3 : Méthodes itératives de \\[3mm] résolution de systèmes linéaires}
+
+Vous êtes invités à créer un répertoire \cmd{TP3} et un fichier \cmd{.m} pour chacune des parties ci-dessous (comportant les lignes de code correspondant à la résolution de l'exercice).
+
+\attention{center}{En cas de blocage, commencez toujours par regarder l'aide !!}
+
+
+% --------------------------------------------
+\section*{Présentation et indications}
+
+Le but de ce TP est de programmer les méthodes de Jacobi et de relaxation pour la résolution de systèmes linéaires. On rappelle que la méthode de relaxation coïncide avec la méthode de Gauss-Seidel pour $\omega=1$. On comparera ensuite l'efficacité de ces méthodes sur des systèmes tridiagonaux classiques.\\
+Soit $A\in\MN(\R)$ ($n\geq 2$) une matrice supposée inversible et $b$ un vecteur de $\R^n$. On rappelle que les méthodes itératives consistent à construire la solution $x$ du système $Ax=b$ comme limite d'une suite $\left( x^{(k)} \right)_{k\in\N}$. Comme on ne peut pas en pratique faire un nombre infini d'itérations, il faut choisir un critère d'arrêt du calcul des $x^{(k)}$.
+Pour une précision à $\varepsilon >0$ donné, on choisit ici le critère d'arrêt :
+$$
+    \ds\frac{\|A x^{(k)}-b\|_{\infty}}{\|b\|_{\infty}}\leq \varepsilon\ (b\neq 0).
+$$
+Par ailleurs, on se donne un nombre maximal d'itérations à ne pas dépasser.
+
+
+% --------------------------------------------
+\section{Programmation des méthodes}
+
+\begin{enumerate}
+
+    \item Programmer une fonction \mtlb{[x,nbit]=jacobi(A,b,eps)}, qui résout le système linéaire $Ax = b$ par la méthode de Jacobi. On choisira le vecteur nul comme point de départ. Les variables d'entrée de la fonction sont la matrice \mtlb{A}, le second membre \mtlb{b} et la précision \mtlb{eps}; les variables de sortie sont \mtlb{x}, solution du problème, et \mtlb{nbit} le nombre d'itérations effectuées pour calculer \mtlb{x} avec la précision donnée. On limitera le nombre d'itérations à \mtlb{nbitmax=1e4}.
+
+    \item Tester la fonction \mtlb{jacobi} dans le cas
+    $$
+        A=
+        \left(
+            \begin{array}{rrr}
+                10 & -1 &  4 \\
+                 2 &  5 & -2 \\
+                -5 &  1 &  7
+            \end{array}
+        \right)
+    $$
+    et pour des seconds membres $b$ de votre choix. Vous pourrez comparer les solutions obtenues avec celles données par le pivot de Gauss de Matlab \mtlb{A}$\backslash$\mtlb{b}.
+
+    \item Programmer une fonction \mtlb{[x,nbit]=relaxation(A,b,omega,eps)}, qui résout le système linéaire $Ax = b$ par la méthode de relaxation de paramètre \mtlb{omega} donné. Tester la fonction \mtlb{relaxation} sur l'exemple précédent pour \mtlb{omega=0.8},  \mtlb{omega=1} et \mtlb{omega=1.2}.
+
+    \item Tester les fonctions \mtlb{jacobi} et \mtlb{relaxation} (avec \mtlb{omega=1}) dans les deux cas suivants :
+    $$
+        \begin{aligned}
+            & A=
+                \left(
+                    \begin{array}{rrr}
+                        1 & 2 & -2 \\
+                        1 & 1 &  1 \\
+                        2 & 2 &  1
+                    \end{array}
+                \right)
+            && \text{ et }
+            & b=
+                \left(
+                    \begin{array}{r}
+                         1 \\
+                         0 \\
+                        -1
+                    \end{array}
+                \right),
+            \\
+            & A=
+                \left(
+                    \begin{array}{rrr}
+                         2 & -1  & 1 \\
+                         2 &  2  & 2 \\
+                        -1 & -1  & 2
+                    \end{array}
+                \right)
+            && \text{ et }
+            & b=
+                \left(
+                    \begin{array}{r}
+                         1 \\
+                        -1 \\
+                        -1
+                    \end{array}
+                \right).
+        \end{aligned}
+    $$
+    Commenter les résultats obtenus.
+\end{enumerate}
+
+
+% --------------------------------------------
+\section{Comparaison d'efficacité sur une matrice bien connue}
+
+Nous nous proposons ici de mettre en évidence les propriétés de convergence des méthodes itératives dans le cas particulier où la matrice $A$ est la matrice dite ``du laplacien 1D'', matrice tridiagonale définie par :
+$$
+    A =
+        \left(
+            \begin{array}{ccccc}
+                   2   &   -1   &   0    & \cdots &    0   \\
+                  -1   & \ddots & \ddots & \ddots & \vdots \\
+                   0   & \ddots & \ddots & \ddots &    0   \\
+                \vdots & \ddots & \ddots & \ddots &   -1   \\
+                   0   & \cdots &   0    &   -1   &    2   \\
+            \end{array}
+        \right)_{\raisebox{1mm}{$\scriptstyle n \times n$}}
+$$
+On prendra comme second membre $b=(1,0,\ldots,0,1)^t\in\R^n$ et le système $Ax=b$, de dimension $n$, a pour solution $x=(1,1,\ldots,1,1)^t\in\R^n$.
+
+
+\begin{enumerate}
+    \item {\em [Question théorique] }Justifier que, pour le système linéaire considéré, les méthodes de Jacobi, de Gauss-Seidel et de relaxation avec $0<\omega<2$ sont convergentes.
+
+    \item En utilisant la commande \mtlbbox{inline}, créer la fonction \mtlb{laplacien} qui prend un paramètre \mtlb{n} et au retour créer la matrice du laplacien, donnée ci-dessus, de dimension \mtlb{n}$\times$\mtlb{n}. Puis, créer de la même façon la fonction \mtlb{secmem} qui prend un paramètre \mtlb{n} et créer le second membre $(1,0,\ldots,0,1)^{t}$ comme vecteur colonne de taille \mtlb{n}.
+
+    \item Pour $n=10$, $\varepsilon=10^{-6}$ puis $\varepsilon=10^{-10}$ comparer le nombre d'itérations nécessaires au calcul de la solution par les méthodes de Jacobi et de Gauss-Seidel.
+
+    \item Même question pour $n=40$. Commenter les résultats obtenus.
+
+    \item Pour $n=10$ et $n=40$, représenter en fonction de $\omega$ ($1\leq\omega\leq 1.99$) le nombre d'itérations nécessaires au calcul de la solution par la méthode de relaxation de paramètre $\omega$. On prendra $\varepsilon=10^{-6}$.
+
+    \item Représenter sur un autre graphique la valeur de $\rho(\mathcal{L}_{\omega})$ en fonction de $\omega$, où $\mathcal{L}_{\omega}$ est la matrice d'itération de la méthode de relaxation. Pour calculer le rayon spectral, on pourra utiliser la commande {Matlab} \mtlb{eig}. Commenter les résultats obtenus (en lien avec la question 4). Quelle choix de $\omega$ recommandez-vous ?
+
+    \item On fixe $\varepsilon=10^{-6}$. Faire varier $n$ de 3 à 50 et représenter sur un graphique les nombres d'itérations nécessaires au calcul de la solution pour les méthodes de Jacobi, Gauss-Seidel et relaxation avec $\omega=1.7$.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
