@@ -1,0 +1,274 @@
+\documentclass[a4paper,12pt]{amsart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[top=21mm,left=28mm,right=21mm,bottom=21mm,nohead,nofoot]{geometry}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{color}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tikz}
+
+
+% -------------- Set page lengths
+\parskip=1mm
+\parindent=0mm
+\renewcommand{\baselinestretch}{1.21}
+
+% -------------- set enumerate style
+\setenumerate{itemsep=1mm,topsep=1mm,parsep=1mm,partopsep=0pt}
+%-- Redefine the first level
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+%-- Redefine the second level
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii)}
+
+% -------------- theorems
+\theoremstyle{definition}
+\newtheorem{exo}{Exercice}
+\newcommand{\startnewline}{\ \par} % a mettre juste après \begin{exo} ou \section{...} pour passer à la ligne
+
+% -------------- standard notations
+\def\N{{\mathbb N}}
+\def\R{{\mathbb R}}
+\def\C{{\mathbb C}}
+\newcommand{\MN}{{\mathcal{M}}_n}
+
+% -------------- set {a,...,b}
+\newcommand{\ens}[2]{\lbrace #1,\,\ldots,\, #2 \rbrace}
+
+% -------------- autres
+\def\ds{\displaystyle}
+
+% -------------- matlab
+% --- colors using 'colors' package
+\definecolor{mtlbcmd}{rgb}{1,0,0}
+\definecolor{mtlbtext}{rgb}{0,0,1}
+\definecolor{cmdtext}{rgb}{0,0,.5}
+\definecolor{notion}{rgb}{1,0,0}
+\definecolor{attention}{rgb}{1,0,0}
+% --- matlab commands using 'listings' and 'tikz' packages
+\lstset{
+        language=matlab,
+        basicstyle=\color{mtlbtext}\ttfamily,
+        keywordstyle=\color{mtlbcmd}\bfseries,
+        showstringspaces=false,
+        tabsize=4,
+        % --- les mots clés qui manque ...
+        morekeywords={helpwin, ones, repmat, numel, switch, inline, @, display, arrayfun}
+}
+% -- la commande mtlb sans bordure
+\newcommand{\mtlb}[1]{\lstinline!#1!}
+% -- la commande mtlbbox comme mtlb mais avec une boite
+\newcommand{\mtlbbox}[1]{\tikz[anchor=base, baseline]{\node[draw=mtlbtext,rounded corners=3pt,top color=white,bottom color=mtlbtext!10,minimum width=7mm]{\vphantom{H}{\lstinline!#1!}\vphantom{p}};}}
+% -- l'environement matlab, peut être utiliser dans minipage
+\lstnewenvironment{matlab}
+        {\lstset{
+                                basicstyle=\color{mtlbtext}\ttfamily\small,
+                                frame=single,
+                                frameround=tttt,
+                                framesep=7pt,
+                                rulecolor=\color{gray}
+                        }
+        }{}
+
+
+% -------------- haut de la page
+\pagestyle{empty}
+\newcommand{\hautdepage}[1]{
+\thispagestyle{empty}
+\clearpage
+\textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ année, option Mathématiques} \hfill \textsc{\large 2012-2013}\\
+\textsc{M65, Analyse numérique matricielle}
+
+\rule[0.5ex]{\textwidth}{0.1mm}
+\vskip 3mm
+\begin{center}
+{\sc{\Large #1}}
+\end{center}
+\rule[0.5ex]{\textwidth}{0.1mm}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hautdepage{TD3 : Factorisations LU, Cholesky, QR}
+
+
+%-----------------------------------
+\begin{exo}\startnewline
+
+    Soit $A$ une matrice tridiagonale, $A \in \MN(\R)$, définie par :
+    $$
+        A=
+            \left(
+                \begin{array}{ccccc}
+                    2+c_1 &   -1   &        &           &       \\
+                     -1   & 2+c_2  &   -1   &           &       \\
+                          & \ddots & \ddots &  \ddots   &       \\
+                          &        &   -1   & 2+c_{n-1} &  -1   \\
+                          &        &        &    -1     & 2+c_n \\
+                \end{array}
+            \right),
+            \mbox{ avec } c_i \geq 0, \quad \forall 1 \leq i \leq n.
+    $$
+    \begin{enumerate}
+        \item Soit $v \in \R^n$ un vecteur quelconque. Montrer que :
+        $$
+            v^t A v = \sum_{i=1}^n c_i v_i^2 + \{v_1^2 + v_n^2 +\sum_{i=2}^n (v_i-v_{i-1})^2\}.
+        $$
+
+        \item En déduire que $A$ admet une factorisation de Cholesky.
+
+        \item Dans le cas où $c_i=0$ pour tout $1\leq i \leq n$, montrer que la matrice $B$ telle que $A=BB^t$ est bidiagonale et donnée par :
+        $$
+            B_{i,i}=\ds\sqrt{\frac{i+1}{i}}\quad \forall 1 \leq i \leq n, \qquad B_{i+1,i}=- \ds\sqrt{\frac{i}{i+1}}\quad \forall 1 \leq i \leq n-1.
+        $$
+
+        \item \mtlb{[Matlab]} Décrire et expliquer les résultats des trois lignes suivantes :
+        \begin{matlab}
+            n=8; v=sqrt((2:n+1)./(1:n))
+            s=1:n+1:(n^2-n-1)
+            B=diag(v); B(s+1)=-1/.B(s)
+        \end{matlab}
+        Et si on remplace \mtlb{n^2-n-1} par \mtlb{n^2-1} dans la deuxième ligne ?
+    \end{enumerate}
+\end{exo}
+
+%-----------------------------------
+\begin{exo}[Factorisation $QR$]
+
+    Soit $A$ une matrice de $\MN(\R)$ inversible.
+    %
+    \begin{enumerate}
+
+        \item Montrer qu'il existe une matrice $R$ triangulaire supérieure à diagonale strictement positive telle que
+            $ A^t A=R^t R. $
+
+        \item  En déduire qu'il existe une matrice orthogonale $Q$ telle que
+            $ A=Q\, R. $
+
+        \item Montrer que cette décomposition $A=QR$ avec $R$ triangulaire supérieure à diagonale strictement positive et $Q$ orthogonale est unique.
+
+        \item \mtlb{[Matlab]} Étant donnée les matrices \mtlb{Q} et \mtlb{R}, écrire une commande qui vérifie que \mtlb{Q} est orthogonale et que \mtlb{R} est triangulaire supérieure à diagonale strictement positive.
+    \end{enumerate}
+\end{exo}
+\pagebreak
+
+%-----------------------------------
+\begin{exo}\startnewline
+
+    Soit $A\in {\mathcal M}_n(\R)$ une matrice symétrique définie positive. On note $B$ la matrice obtenue par la factorisation de Cholesky : $A= B B^t$.
+    \begin{enumerate}
+        \item En identifiant les coefficients de $A$ et de $BB^t$ colonne par colonne,
+        montrer que l'on obtient successivement les coefficients de $B$ par :
+        $$
+            \begin{array}{l}
+                \ \,b_{11}=\sqrt{a_{11}},\ \ b_{i1}=\ds\frac{a_{i1}}{b_{11}},\ \text{pour}\ i\in\ens{2}{n}\\[12pt]
+                \left.
+                    \begin{array}{l}
+                        b_{jj}=\sqrt{a_{jj}-\ds\sum_{k=1}^{j-1}b_{jk}^2}\\[5pt]
+                        b_{ij}=\ds\frac{1}{b_{jj}}\,(a_{ij}-\ds\sum_{k=1}^{j-1}b_{ik}\,b_{jk})\,\
+                        \text{pour}\ i\in\ens{j+1}{n}
+                    \end{array}
+                \right\rbrace
+                \ j\in\ens{2}{n}
+            \end{array}
+        $$
+
+        \item Déterminer le nombre d'opérations nécessaires (en fonction de $n$) pour calculer la matrice $B$ par cette méthode.
+
+        \item \mtlb{[Matlab]} Étant donnée la matrice \mtlb{A}, écrire une commande qui construit la première colonne de la matrice \mtlb{B} de la factorisation de Cholesky.
+    \end{enumerate}
+\end{exo}
+
+
+%-----------------------------------
+\begin{exo}\startnewline
+
+    Soient $a=(a_2,\ldots,a_n)\in\R^{n-1}$, $b= (b_1,\ldots,b_n)\in\R^n$ et $c=(c_1,\ldots,c_{n-1})\in\R^{n-1}$.\\
+    On considère la matrice tridiagonale $A\in{\mathcal M}_n(\R)$ suivante :
+    $$
+        A =
+        \left(
+            \begin{array}{cccccc}
+                 b_1   &  c_1   &   0     & \cdots  &    0    \\ [-3pt]
+                 a_2   &  b_2   &  c_2    & \ddots  & \vdots  \\ [-1pt]
+                  0    & \ddots & \ddots  & \ddots  &    0    \\ [-1pt]
+                \vdots & \ddots & a_{n-1} & b_{n-1} & c_{n-1} \\
+                  0    & \cdots &    0    &  a_{n}  &   b_n
+            \end{array}
+        \right).
+    $$
+
+    \begin{enumerate}
+
+        \item Soit  $\delta_k$ le déterminant de la $k$-ième sous-matrice principale (avec $\delta_0=1$).
+        \begin{enumerate}
+            \item Montrer que :
+                $$
+                    \delta_1=b_1,\quad
+                    \delta_k=b_k\,\delta_{k-1}-a_k\,c_{k-1}\,\delta_{k-2},\ \text{pour}\ k\in\ens{2}{n}
+                $$
+
+            \item Sous quelle condition sur la suite $\left\{ \delta_{k} \right\}_{1 \leq k \leq n}$ la matrice $A$ admet une factorisation $LU$.
+        \end{enumerate}
+
+        \noindent On suppose par la suite que $A$ admet une factorisation $A=LU$ (avec $L$ triangulaire inférieure à diagonale unité et $U$ triangulaire supérieure).
+
+        \item On dit qu'une matrice $M=[m_{ij}]$ est à propagation au plus $k$ si $m_{ij} = 0$ pour $| i-j | > k$.
+        \begin{enumerate}
+            \item Montrer qu'en général, si on a la décomposition $A=LU$ et la propagation de $A$ qui est au plus $k$, alors les propagations de $L$ et de $U$ sont au plus $k$.
+
+            \item En déduire dans notre cas que les matrices $L$ et $U$ sont de la forme :
+                $$\hspace{21mm}
+                    L =
+                    \left(
+                        \begin{array}{cccccc}
+                               1    &    0    & \cdots &  \cdots   &   0    \\ [-3pt]
+                            l_{2,1} &    1    & \ddots &           & \vdots \\ [-1pt]
+                               0    & l_{3,2} & \ddots &  \ddots   & \vdots \\ [-1pt]
+                            \vdots  & \ddots  & \ddots &  \ddots   &   0    \\
+                               0    & \cdots  &   0    & l_{n,n-1} &   1
+                        \end{array}
+                    \right), \quad
+                    U =
+                    \left(
+                        \begin{array}{cccccc}
+                            u_{1,1} & u_{1,2} &    0    & \cdots &     0     \\ [-3pt]
+                               0    & u_{2,2} & u_{2,3} & \ddots &  \vdots   \\ [-1pt]
+                            \vdots  & \ddots  & \ddots  & \ddots &     0     \\ [-1pt]
+                            \vdots  &         & \ddots  & \ddots & u_{n-1,n} \\
+                               0    & \cdots  & \cdots  &   0    &  u_{n,n}
+                        \end{array}
+                    \right).
+                $$
+
+            \item Montrer que les coefficients des matrices $L$ et $U$ sont donnés par :
+                $$
+                    \begin{array}{ll}
+                        l_{i,i-1}=a_i\,\delta_{i-2}/\delta_{i-1} & \forall\ 2\le i\le n   \\ [3pt]
+                        u_{i,i}=\delta_i/\delta_{i-1}            & \forall\ 1\le i\le n   \\ [3pt]
+                        u_{i,i+1}=c_i.                           & \forall\ 1\le i\le n-1
+                    \end{array}
+                $$
+        \end{enumerate}
+
+        \item On pose $\Delta_{i}=\ds \frac{\delta_{i-1}}{\delta_{i}}$ pour $i=1,\ldots,n$. \newline
+        Montrer que la résolution du système linéaire $A\,x= z$ où $z \in \R^n$, en résolvant d'abord $L\,y = z$, revient à construire (successivement) les suites :
+        $$
+            \begin{array}{l@{\hskip1cm}l@{\hskip7mm}l}
+                \Delta_{1} = 1 / b_{1}, & \Delta_{k}= 1 / \left( b_k-a_{k}\,c_{k-1}\,\Delta_{k-1} \right), & k=2,\ldots,n    \\ [7pt]
+                y_1 = z_{1},                & y_{k}=z_{k} - a_{k} \Delta_{k-1} y_{k-1}             & k=2,\ldots,n    \\ [7pt]
+                x_n = \Delta_{n}y_n,        & x_k=\Delta_{k} (y_k - c_k\,x_{k+1}),                 & k=n-1,\ldots,1.
+            \end{array}
+        $$
+
+        \item Faire le compte des opérations nécessaires pour résoudre un système tridiagonal par cette méthode.
+
+        \item \mtlb{[Matlab]} Étant donnée un nombre \mtlb{k} et une matrice \mtlb{A}, écrire une instruction qui vérifie que la matrice \mtlb{A} est à propagation au plus \mtlb{k}.
+    \end{enumerate}
+\end{exo}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}

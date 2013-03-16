@@ -1,0 +1,303 @@
+\documentclass[a4paper,12pt]{amsart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[top=21mm,left=28mm,right=21mm,bottom=21mm,nohead,nofoot]{geometry}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{color}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tikz}
+
+
+% -------------- Set page lengths
+\parskip=1mm
+\parindent=0mm
+\renewcommand{\baselinestretch}{1.21}
+
+% -------------- set enumerate style
+\setenumerate{itemsep=1mm,topsep=1mm,parsep=1mm,partopsep=0pt}
+%-- Redefine the first level
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+%-- Redefine the second level
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii)}
+
+% -------------- theorems
+\theoremstyle{definition}
+\newtheorem{exo}{Exercice}
+\newcommand{\startnewline}{\ \par} % a mettre juste après \begin{exo} ou \section{...} pour passer à la ligne
+
+% -------------- standard notations
+\def\N{{\mathbb N}}
+\def\R{{\mathbb R}}
+\def\C{{\mathbb C}}
+\newcommand{\MN}{{\mathcal{M}}_n}
+
+% -------------- set {a,...,b}
+\newcommand{\ens}[2]{\lbrace #1,\,\ldots,\, #2 \rbrace}
+
+% -------------- autres
+\def\ds{\displaystyle}
+
+% -------------- matlab
+% --- colors using 'colors' package
+\definecolor{mtlbcmd}{rgb}{1,0,0}
+\definecolor{mtlbtext}{rgb}{0,0,1}
+\definecolor{cmdtext}{rgb}{0,0,.5}
+\definecolor{notion}{rgb}{1,0,0}
+\definecolor{attention}{rgb}{1,0,0}
+% --- matlab commands using 'listings' and 'tikz' packages
+\lstset{
+        language=matlab,
+        basicstyle=\color{mtlbtext}\ttfamily,
+        keywordstyle=\color{mtlbcmd}\bfseries,
+        showstringspaces=false,
+        tabsize=4,
+        % --- les mots clés qui manque ...
+        morekeywords={helpwin, ones, repmat, numel, switch, inline, @, display, arrayfun}
+}
+% -- la commande mtlb sans bordure
+\newcommand{\mtlb}[1]{\lstinline!#1!}
+% -- la commande mtlbbox comme mtlb mais avec une boite
+\newcommand{\mtlbbox}[1]{\tikz[anchor=base, baseline]{\node[draw=mtlbtext,rounded corners=3pt,top color=white,bottom color=mtlbtext!10,minimum width=7mm]{\vphantom{H}{\lstinline!#1!}\vphantom{p}};}}
+% -- l'environement matlab, peut être utiliser dans minipage
+\lstnewenvironment{matlab}
+        {\lstset{
+                                basicstyle=\color{mtlbtext}\ttfamily\small,
+                                frame=single,
+                                frameround=tttt,
+                                framesep=7pt,
+                                rulecolor=\color{gray}
+                        }
+        }{}
+
+
+% -------------- haut de la page
+\pagestyle{empty}
+\newcommand{\hautdepage}[1]{
+\thispagestyle{empty}
+\clearpage
+\textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ année, option Mathématiques} \hfill \textsc{\large 2012-2013}\\
+\textsc{M65, Analyse numérique matricielle}
+
+\rule[0.5ex]{\textwidth}{0.1mm}
+\vskip 3mm
+\begin{center}
+{\sc{\Large #1}}
+\end{center}
+\rule[0.5ex]{\textwidth}{0.1mm}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hautdepage{TD4 : Méthodes itératives}
+
+
+%-----------------------------------
+\begin{exo}
+
+    Soit $A\in\MN(\R)$ une matrice symétrique définie positive. On décompose $A$ sous la forme $A=M-N$ avec $M$ inversible. Dans cette exercice on se propose de démontrer une condition suffisante ($M^t+N$ est symétrique définie positive) pour que la méthode itérative associée à la décomposition $A=M-N$ converge.
+    \begin{enumerate}
+
+        \item Montrer que $\|\cdot\|_{\ast}:x\in\R^n\mapsto \|x\|_{\ast}=\sqrt{x^t Ax}$ définit bien une norme sur $\R^n$. On note $|\!|\!|\cdot|\!|\!|_{\ast}$ la norme matricielle subordonnée associée.
+
+        \item Montrer que $|\!|\!|M^{-1}N|\!|\!|_{\ast}=\ds\sup_{\|v\|_{\ast}=1}\|v-M^{-1}Av\|_{\ast}$.
+
+        \item Soit $v\in\R^n$. On pose $w=M^{-1}Av$.
+        \begin{enumerate}
+            \item Montrer que $v^tAw=w^tM^tw$ et que  $w^tAv=w^tMw$.
+
+            \item En déduire que $\|v-w\|_{\ast}^2=\|v\|_{\ast}^2-w^t(M^t+N)w$.
+        \end{enumerate}
+
+        \item On suppose désormais que $M^t+N$ est symétrique définie positive. Montrer que pour tout $v\in\R^n$ tel que $\|v\|_{\ast}=1$, on a $\|v-M^{-1}Av\|_{\ast}<1$. En déduire que $|\!|\!|M^{-1}N|\!|\!|_{\ast}<1$.
+
+        \item Montrer que si $M^t+N$ est symétrique définie positive alors la méthode itérative
+        $$
+        \left\{
+            \begin{aligned}
+                & x^0 \in \R^n \\
+                & Mx^{k+1} = Nx^k + b,\ \forall k\geq 0.
+            \end{aligned}
+        \right.
+        $$
+        est convergente vers la solution $x$ de $Ax=b$.
+
+        \item \mtlb{[Matlab]} Étant données deux matrices \mtlb{M} et \mtlb{N}, ecrire la condition sous Matlab pour vérifier si $M^{t}+N$ est symétrique.
+    \end{enumerate}
+\end{exo}
+
+
+%-----------------------------------
+\begin{exo}
+
+    Soit $n\geq 3$ et $A\in\mathcal{M}_n(\R)$ la matrice de discrétisation du laplacien 1D :
+    $$
+    A=\left(
+        \begin{array}{ccccc}
+              2    &   -1   &   0    & \cdots &   0    \\
+              -1   & \ddots & \ddots & \ddots & \vdots \\
+              0    & \ddots & \ddots & \ddots &   0    \\
+            \vdots & \ddots & \ddots & \ddots &   -1   \\
+              0    & \cdots &   0    &   -1   &   2    \\
+        \end{array}
+    \right)
+    $$
+    On admet (cela a été démontré dans un TD précédent) que les valeurs propres de cette matrice sont :
+    $$
+        \lambda_k = 4\,\left( \sin\left(\ds\frac{k\,\pi}{2(n+1)}\right) \right) ^2,\quad 1\leq k\leq n.
+    $$
+    \begin{enumerate}
+        \item Exprimer $J$ la matrice de Jacobi associée à la matrice $A$.
+
+        \item Montrer que $\mu$ est une valeur propre de $J$ si et seulement si
+        $2(1-\mu)$ est une valeur propre de $A$.
+
+        \item En déduire les valeurs propres de $J$, que l'on notera $(\mu_k)_{1\leq k\leq n}$.
+
+        \item Montrer que la méthode de Jacobi est convergente pour résoudre un système linéaire de matrice $A$.
+
+        \item Pouvait-on déterminer la convergence de la méthode de Jacobi sans le calcul des valeurs propres ? Et la convergence de la méthode de Gauss-Seidel ?
+
+        \item Que peut-on dire du rayon spectral de $J$ quand $n$  tend vers l'infini ? Conclure.
+
+        \item \mtlb{[Matlab]} Étant donnée une matrice \mtlb{A}, écrire une commande Matlab pour construire la matrice de Jacobi \mtlb{J}.
+    \end{enumerate}
+\end{exo}
+
+
+%-----------------------------------
+\begin{exo}
+
+    Soit un entier $n \geq 3$. Pour $\alpha,\beta \in\R$, on définit
+    $$
+        A(\alpha,\beta) =
+            \left(
+                \begin{array}{cccc}
+                    \beta  & \alpha & \cdots & \alpha \\
+                    \alpha & \beta  & \ddots & \vdots \\
+                    \vdots & \ddots & \ddots & \alpha \\
+                    \alpha & \cdots & \alpha & \beta
+                \end{array}
+            \right).
+    $$
+
+    \begin{enumerate}
+        \item Montrer que $\det(A(\alpha,\beta)) = (\beta+(n-1)\alpha)(\beta-\alpha)^{n-1}$. A quelle condition la matrice $A(\alpha,\beta)$ est-elle inversible ?
+
+        \item Déterminer les valeurs propres de $A(\alpha,\beta)$.
+
+        \item  A quelle condition la matrice $A(\alpha,\beta)$ est-elle symétrique définie positive ?
+
+        \item  Comparer $|||{A(\alpha,\beta)}|||_\infty$, $|||{A(\alpha,\beta)}|||_1$ et  $\rho(A(\alpha,\beta))$.
+
+        \item On suppose maintenant que $\beta \neq 0$. On souhaite déterminer à quelle condition la méthode de Jacobi appliquée à la résolution  d'un système linéaire de matrice $A(\alpha,\beta)$ est convergente.
+        \begin{enumerate}
+
+            \item Calculer la matrice de Jacobi $J(\alpha,\beta)$ puis déterminer son rayon spectral.
+
+            \item En déduire que la méthode de Jacobi est convergente si et seulement si la matrice $A(\alpha,\beta)$ est inversible à diagonale strictement dominante.
+        \end{enumerate}
+
+        \item Montrer que pour certaines valeurs de $\alpha$ et $\beta$ la méthode de Gauss-Seidel converge alors que la méthode de Jacobi ne converge pas.
+
+        \item \mtlb{[Matlab]} Étant données les paramètres \mtlb{n}, \mtlb{a} et \mtlb{b}, écrire une commande Matlab pour construire la matrice $A(a,b)$ définie plus haut.
+    \end{enumerate}
+\end{exo}
+
+%-----------------------------------
+\begin{exo} Soient
+    \begin{itemize}
+        \item  $A$ une matrice de $\mathcal{M}_{n}(\R)$ symétrique définie positive et $b$ un vecteur de $\R^n$,
+
+        \item $R$ et $S$ deux matrices symétriques positives ($x^tRx\geq 0$ et $x^t Sx\geq 0$ pour tout $x\in\R^n$) telles que $A=R+S$,
+
+        \item $\alpha$ un réel strictement positif.
+    \end{itemize}
+
+    On note $I$ la matrice identité de $\mathcal{M}_{n}(\R)$. Pour résoudre le système linéaire $Ax=b$, on considère la méthode itérative suivante :
+
+    \begin{equation*}
+        \left\lbrace
+            \begin{array}{l}
+                x^0 \in \R^n \\
+                \begin{array}{lcl}
+                    \hspace{-5pt}(R+\alpha I)\,x^{k+1/2} & = & (\alpha I-S)\,x^k+b \\
+                      \hspace{-5pt}(S+\alpha I)\,x^{k+1} & = & (\alpha I-R)\,x^{k+1/2}+b
+                \end{array}\quad\ \forall  k\in\N.
+            \end{array}
+        \right.
+    \end{equation*}
+
+    \begin{enumerate}
+        \item Montrer que les matrices $R+\alpha I$ et $S+\alpha I$ sont symétriques définies positives.
+
+        \item Montrer que les formules itératives définissent bien une suite $(x^k)_{k\geq 0}$ (pour tout  $x^0$ et $b$).
+
+        \item Vérifier que les matrices $R\!+\!\alpha I$ et $\alpha I\!-\!R$ commutent.
+
+        \item En déduire l'écriture de l'itération $k$ sous la forme :\vspace{-2pt}
+        $$
+            M\,x^{k+1} = N\,x^k+b.\vspace{-4pt}
+        $$
+        avec $M=(R+\alpha I)(S+\alpha I)/(2\alpha)$ et $N=(\alpha I-R)(\alpha I-S)/(2\alpha)$.
+
+        \item Montrer que si la suite $(x^k)_{k\geq 0}$ converge, sa limite $x$ vérifie $Ax=b$.
+
+        \item Montrer que si la matrice symétrique $SR\!+\!RS$ est semi-définie positive, alors la méthode itérative définie dans cette exercice est convergente ({\em Indication :} on pourra calculer $M^t+N$).
+
+        \item \mtlb{[Matlab]} Commenter tous les lignes du code suivant :
+        \lstset{numbers=left, numberstyle=\tiny, numbersep=-21pt}
+        \begin{matlab}
+            nb_iter_max = 1e4;
+            err_max = 1e-4;
+            for j = 1:nb_iter_max
+                if ( norm(M*x-N*x-b) < err_max )
+                    break;
+                end
+                x = M\(N*x+b);
+            end
+        \end{matlab}
+    \end{enumerate}
+\end{exo}
+
+
+%-----------------------------------
+\begin{exo}
+
+    Soit $A\in{\mathcal M}_n(\R)$ une matrice dont les coefficients diagonaux sont non-nuls et la décomposition classique $A=D-E-F$.
+
+    On note $J$ la matrice de Jacobi et ${\mathcal L}_1$ la matrice de Gauss-Seidel associées.
+    \begin{enumerate}
+        \item Redonner les expressions (vues en cours) de $J$ et ${\mathcal L}_1$ en fonctions des matrices $D$, $E$ et $F$.
+
+        \item Pour $\lambda\in \R$, on définit la matrice $ B(\lambda)=\lambda D-(E+F)$. Montrer que $\lambda$ est une valeur propre de $J$ si et seulement si $\det(B(\lambda))=0$.
+
+        \item Pour $\mu \in\R$, on définit la matrice $ C(\mu)=\mu(D-E)-F$. Montrer que $\mu$ est une valeur propre de ${\mathcal L}_1$ si et seulement si $\det(C(\mu))=0$.
+    \end{enumerate}
+    On suppose désormais que $A$ est une matrice tridiagonale. Soient $a=(a_2,\ldots,a_n)\in\R^{n-1}$, $b= (b_1,\ldots,b_n)\in\R^n$ ($b_i\neq 0$ pour tout $1\leq i\leq n$) et
+    $c=(c_1,\ldots,c_{n-1})\in\R^{n-1}$, $A$ s'écrit :
+    $$
+        A =
+            \left(
+                \begin{array}{cccccc}
+                     b_1   &  c_1   &   0     & \ldots  &    0    \\ [-3pt]
+                     a_2   &  b_2   &  c_2    & \ddots  & \vdots  \\ [-1pt]
+                      0    & \ddots & \ddots  & \ddots  &     0    \\ [-1pt]
+                    \vdots & \ddots & a_{n-1} & b_{n-1} & c_{n-1} \\
+                      0    & \ldots &    0    &  a_{n}  &   b_n
+                \end{array}
+            \right).
+    $$
+    \begin{enumerate}
+        \setcounter{enumi}{3}
+        \item Soit $Q(\lambda)={\rm diag}(\lambda,\lambda^2,\ldots,\lambda^n)$. Montrer que $Q(\lambda)^{-1}C(\lambda^2)Q(\lambda)=\lambda B(\lambda)$, pour tout $\lambda\neq 0$.
+
+        \item En déduire une relation entre $\det C(\lambda^2)$ et $\det B(\lambda)$, puis une relation entre  $\rho(J)$ et  $\rho({\mathcal L}_1)$.
+    \end{enumerate}
+\end{exo}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
