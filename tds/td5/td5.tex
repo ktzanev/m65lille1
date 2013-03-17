@@ -1,0 +1,288 @@
+\documentclass[a4paper,12pt, reqno]{amsart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[top=21mm,left=28mm,right=21mm,bottom=21mm,nohead,nofoot]{geometry}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{color}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tikz}
+
+
+% -------------- Set page lengths
+\parskip=1mm
+\parindent=0mm
+\renewcommand{\baselinestretch}{1.21}
+
+% -------------- set enumerate style
+\setenumerate{itemsep=1mm,topsep=1mm,parsep=1mm,partopsep=0pt}
+%-- Redefine the first level
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+%-- Redefine the second level
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii)}
+
+% -------------- theorems
+\theoremstyle{definition}
+\newtheoremstyle{exostyle}% nom du style
+  {0pt}% l'espace avant l'exercices. Ex: 3pt
+  {21mm}% l'espace après l'exercices. Ex: 21cm
+  {}% la police pour le corps de l'exercice. Ex : \itshape
+  {}% l'indentification de la première ligne
+  {\bfseries}% la police pour écrire "Exercice"
+  {.}% La ponctuation après "Exercice N"
+  {14pt}% L'espace après la ponctuation. Vide = espace normal entre les mots
+  {}% On peut remplacer "Exercice" par autre chose
+\newcommand{\startnewline}{\ \par} % a mettre juste après \begin{exo} ou \section{...} pour passer à la ligne
+\theoremstyle{exostyle}
+\newtheorem{exo}{Exercice}
+
+% -------------- standard notations
+\def\N{{\mathbb N}}
+\def\R{{\mathbb R}}
+\def\C{{\mathbb C}}
+\newcommand{\MN}{{\mathcal{M}}_n}
+
+% -------------- set {a,...,b}
+\newcommand{\ens}[2]{\lbrace #1,\,\ldots,\, #2 \rbrace}
+
+% -------------- autres
+\def\ds{\displaystyle}
+
+% -------------- matlab
+% --- colors using 'colors' package
+\definecolor{mtlbcmd}{rgb}{1,0,0}
+\definecolor{mtlbtext}{rgb}{0,0,1}
+\definecolor{cmdtext}{rgb}{0,0,.5}
+\definecolor{notion}{rgb}{1,0,0}
+\definecolor{attention}{rgb}{1,0,0}
+% --- matlab commands using 'listings' and 'tikz' packages
+\lstset{
+        language=matlab,
+        basicstyle=\color{mtlbtext}\ttfamily,
+        keywordstyle=\color{mtlbcmd}\bfseries,
+        showstringspaces=false,
+        tabsize=4,
+        % --- les mots clés qui manque ...
+        morekeywords={helpwin, ones, repmat, numel, switch, inline, @, display, arrayfun}
+}
+% -- la commande mtlb sans bordure
+\newcommand{\mtlb}[1]{\lstinline!#1!}
+% -- la commande mtlbbox comme mtlb mais avec une boite
+\newcommand{\mtlbbox}[1]{\tikz[anchor=base, baseline]{\node[draw=mtlbtext,rounded corners=3pt,top color=white,bottom color=mtlbtext!10,minimum width=7mm]{\vphantom{H}{\lstinline!#1!}\vphantom{p}};}}
+% -- l'environement matlab, peut être utiliser dans minipage
+\lstnewenvironment{matlab}
+        {\lstset{
+                                basicstyle=\color{mtlbtext}\ttfamily\small,
+                                frame=single,
+                                frameround=tttt,
+                                framesep=7pt,
+                                rulecolor=\color{gray}
+                        }
+        }{}
+
+
+% -------------- haut de la page
+\pagestyle{empty}
+\newcommand{\hautdepage}[1]{
+\thispagestyle{empty}
+\clearpage
+\textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ année, option Mathématiques} \hfill \textsc{\large 2012-2013}\\
+\textsc{M65, Analyse numérique matricielle}
+
+\rule[0.5ex]{\textwidth}{0.1mm}
+\vskip 3mm
+\begin{center}
+{\sc{\Large #1}}
+\end{center}
+\rule[0.5ex]{\textwidth}{0.1mm}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hautdepage{TD5 : Méthodes itératives et conditionnement}
+
+
+%-----------------------------------
+\begin{exo}
+    Dans l'espace euclidien $\R^n$, on note $(\cdot,\cdot)$ le produit scalaire usuel, $\Vert \cdot\Vert$ la norme euclidienne associée et $|\!\Vert \cdot \Vert\! |$ la norme matricielle subordonnée associée. Soit $A\in {\mathcal M}_n(\R)$ et $b\in\R^n$. On suppose dans tout l'exercice que $A$ vérifie :
+    $$
+    \exists \alpha >0 \mbox{ tel que } \forall x\in\R^n,\quad (Ax,x)\geq \alpha \Vert x\Vert^2.
+    $$
+    \begin{enumerate}
+        \item Montrer que $A$ est inversible.
+
+        \item Montrer que pour tout $x\in\R^n$, on a $ \alpha \Vert x\Vert \leq \Vert Ax\Vert. $
+
+        \item En déduire que $\alpha \leq |\!\Vert A \Vert \!|$.
+
+        \item Soit $\rho\in\R^{*}$. On définit la méthode itérative $(x^{(k)})_{k\geq 0}$ suivante :
+        \begin{equation}\label{meth_grad}
+            \left\{
+                \begin{aligned}
+                      & x^{(0)} \in \R^n \mbox{ donné}, \\
+                      & x^{(k+1)}=x^{(k)}-\rho(Ax^{(k)}-b).
+                \end{aligned}
+            \right.
+        \end{equation}
+        \begin{enumerate}
+            \item Montrer que si la suite converge, sa limite $x$ est solution de $Ax=b$.
+
+            \item Soit $x$ la solution du système $Ax=b$. Montrer que
+            $$
+                \Vert x^{(k+1)}-x\Vert^2=\Vert x^{(k)}-x\Vert^2-2\rho\left(x^{(k)}-x,A(x^{(k)}-x)\right)+\rho^2\Vert A(x^{(k)}-x)\Vert^2.
+            $$
+
+            \item En déduire que, pour tout $\rho < 0$,
+            $$
+                \Vert x^{(k+1)}-x\Vert \geq (1-\rho\alpha)\Vert x^{(k)}-x\Vert\ \quad \forall k\geq 0
+            $$
+            et que la méthode \eqref{meth_grad} n'est pas convergente.
+
+            \item Montrer que, pour tout $\rho>0$, on a :
+            $$
+                \Vert x^{(k)}-x\Vert^2\leq (\theta(\rho))^k\Vert x^{(0)}-x\Vert^2,\quad \forall k\geq 0,
+            $$
+            où $\theta$ est un polynôme du second degré en $\rho$ dont les coefficients dépendent de $\alpha$ et $|\!\Vert A \Vert \!|$.
+
+            \item Déterminer un ensemble de valeurs de $\rho$ pour lesquelles la méthode \eqref{meth_grad} est convergente.
+
+            \item Déterminer dans cet ensemble la valeur de $\rho$ pour laquelle la convergence de la suite $(\theta(\rho)^k)_{k\geq 0}$ est la plus rapide.
+
+        \end{enumerate}
+
+        \item On suppose désormais que $A$ est symétrique et on note $\lambda_1\leq \ldots \leq \lambda_n$ les valeurs propres de $A$.
+        \begin{enumerate}
+            \item Montrer que $A$ est définie positive.
+
+            \item Pour quelles valeurs de $\rho$ la méthode \eqref{meth_grad} est-elle convergente ? Comparer avec le résultat obtenu dans la question précédente.
+        \end{enumerate}
+    \end{enumerate}
+\end{exo}
+
+%-----------------------------------
+\begin{exo}
+
+    Soit $A\in\mathcal{M}_n(\R)$ ($n\geq 2$) une matrice symétrique définie positive qui admet une décomposition $A=M-N$ avec $M$ symétrique définie positive et $b\in\R^n$. Pour $\alpha \neq 0$, on définit la méthode itérative :
+    \begin{equation}\label{Richprec}
+        \left\{
+            \begin{aligned}
+                & x^{(0)} \in \R^n \text{ donné,} \\
+                & x^{(k+1)} = x^{(k)}+\alpha M^{-1} r^{(k)},\
+                    \text{avec } r^{(k)}=b-Ax^{(k)}.
+            \end{aligned}
+        \right.
+    \end{equation}
+    \begin{enumerate}
+        \item Montrer que si la méthode \eqref{Richprec} converge alors la limite $x=\ds\lim_{k\to\infty} x^{(k)}$ est solution du système linéaire $Ax=b$.
+
+        \item Justifier l'existence de la décomposition $M=U\Delta U^t$ avec U matrice orthogonale et $\Delta$ matrice diagonale réelle, puis  la définition de
+        la racine carrée de $M$ : $M^{1/2}=U\Delta^{1/2} U^t$ et de $M^{-1/2}=U\Delta^{-1/2} U^t$.
+
+        \item Montrer que la méthode \eqref{Richprec} est équivalente à
+        \begin{equation}\label{Richprec2}
+            \left\{
+                \begin{aligned}
+                    & y^{(0)}=M^{1/2}x^{(0)}, \\
+                    & y^{(k+1)} = y^{(k)}+\alpha \rho^{(k)},\
+                        \text{avec } \rho^{(k)}=M^{-1/2}b-M^{-1/2}AM^{-1/2}y^{(k)}.
+                \end{aligned}
+            \right.
+        \end{equation}
+
+        \item Montrer que \eqref{Richprec2} est une méthode de gradient à pas constant.
+
+        \item En déduire la valeur optimale du paramètre $\alpha$. Montrer qu'elle s'exprime en fonction des valeurs propres de $M^{-1}A$.
+
+        \item \mtlb{[Matlab]} Écrire le code de la méthode itérative décrite par \eqref{Richprec}. On considérera \mtlb{a} (à la place de $\alpha$), \mtlb{A}, \mtlb{M}, \mtlb{b} et le \mtlb{x} initial ($=x^{(0)}$) donnés et de tailles compatibles.
+    \end{enumerate}
+\end{exo}
+
+%-----------------------------------
+\begin{exo}
+
+    Soit $A\in\MN(\R)$ une matrice inversible.
+    \begin{enumerate}
+        \item Quelle relation existe-t-il en général entre $\kappa(A^2)$ et $(\kappa(A))^2$ ?
+
+        \item Montrer que si $A$ est symétrique alors $\kappa_2(A^2)=(\kappa_2(A))^2$.
+
+        \item Soit $A=QR$ la décomposition QR de $A$ ($Q$ matrice orthogonale et $R$ triangulaire supérieure à diagonale strictement positive). Montrer que $\kappa_2(A)=\kappa_2(R)$.
+
+        \item Donner une minoration de $\kappa_2(A)$ en fonction des éléments diagonaux de $R$.
+
+        \item \mtlb{[Matlab]} Étant donnée la matrice \mtlb{R} de la décomposition QR de $A$, écrire l'instruction qui donne la minoration trouvé dans la question précédente.
+
+    \end{enumerate}
+\end{exo}
+\clearpage
+
+%-----------------------------------
+\begin{exo}
+
+    Soit $A\in{\mathcal M}_n(\R)$ la matrice définie par
+    $$
+        \left\{
+            \begin{aligned}
+                & a_{ii}=1 &   & \text{ pour tout } 1\leq i\leq n, \\
+                & a_{i1}=1 &   & \text{ pour tout } 2\leq i\leq n, \\
+                & a_{ij}=0 &   & \text{ sinon}.
+            \end{aligned}
+        \right.
+    $$
+    %
+    \begin{enumerate}
+        \item Calculer $A^{-1}$.
+
+        \item En déduire $\kappa_{\infty}(A)$ et $\kappa_1(A)$.
+
+        \item Expliquer le code suivant en précisant quelle quantité connue est calculée :
+        \begin{matlab}
+            max(sum(abs(A')))
+        \end{matlab}
+    \end{enumerate}
+\end{exo}
+
+%-----------------------------------
+\begin{exo}
+
+    Soit $A$ la matrice de discrétisation par différences finies
+    de l'opérateur $-\ds\frac{d^2}{dx^2}$ :
+    $$
+        \left(
+            \begin{array}{ccccc}
+                  2    &   -1   &   0    & \cdots &   0    \\
+                  -1   & \ddots & \ddots & \ddots & \vdots \\
+                  0    & \ddots & \ddots & \ddots &   0    \\
+                \vdots & \ddots & \ddots & \ddots &   -1   \\
+                  0    & \cdots &   0    &   -1   &   2    \\
+            \end{array}
+        \right)_{n \times n}
+    $$
+    \begin{enumerate}
+        \item Donner les valeurs propres de $A$.
+
+        \item En déduire la valeur de  $\kappa_2(A)$.
+
+        \item Donner un équivalent de $\kappa_2(A)$ quand $n$ tend vers $+\infty$.
+
+        \item Expliquer le code suivant ligne par ligne et globalement. Donner l'allure de la courbe obtenue.
+        \lstset{numbers=left, numberstyle=\tiny, numbersep=-21pt}
+        \begin{matlab}
+            t = 1:100;
+            c = zeros(length(t));
+            for n = t
+                A = diag(-1*ones(1,n-1),1) + ...
+                    diag(-1*ones(1,n-1),-1) + ...
+                    2*eye(n);
+                c(n) = cond(A);
+            end
+            loglog(t,c);
+        \end{matlab}
+    \end{enumerate}
+\end{exo}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
