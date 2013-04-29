@@ -1,0 +1,264 @@
+\documentclass[a4paper,12pt]{amsart}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[top=21mm,left=28mm,right=21mm,bottom=21mm,nohead,nofoot]{geometry}
+\usepackage[french]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{pifont}
+\usepackage{color}
+\usepackage{enumitem}
+\usepackage{listings}
+%\usepackage{graphicx}
+\usepackage{tikz}
+
+
+% -------------- Set page lengths
+\parskip=1mm
+\parindent=0mm
+\renewcommand{\baselinestretch}{1.3}
+
+% -------------- set enumerate style
+%-- redefine defaults with enumitem package
+\setenumerate{itemsep=1mm,topsep=1mm,parsep=1mm,partopsep=0pt}
+%-- redefine the first level
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+%-- redefine the second level
+\renewcommand{\theenumii}{\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii)}
+%-- define (my)dinglist
+\newenvironment{mydinglist}
+        {\begin{itemize}\renewcommand\labelitemi{\ding{224}}}
+        {\end{itemize}}
+
+% -------------- theorems
+\theoremstyle{definition}
+\newtheorem{exo}{Exercice}
+\newtheorem*{theo}{Théorème}
+\newcommand{\startnewline}{\ \par} % a mettre juste après \begin{exo} ou \section{...} pour passer à la ligne
+
+% -------------- standard notations
+% --- sets
+\def\N{\mathbb{N}}
+\def\R{\mathbb{R}}
+\def\C{\mathbb{C}}
+% --- matrix
+\newcommand{\MN}{{\mathcal{M}}_n}
+% ---- set {a,...,b}
+\newcommand{\ens}[2]{\lbrace #1,\,\ldots,\, #2 \rbrace}
+
+% -------------- display style
+\def\ds{\displaystyle}
+
+% -------------- matlab
+% --- colors using 'colors' package
+\definecolor{mtlbcmd}{rgb}{1,0,0}
+\definecolor{mtlbtext}{rgb}{0,0,1}
+\definecolor{cmdtext}{rgb}{0,0,.5}
+\definecolor{notion}{rgb}{1,0,0}
+\definecolor{attention}{rgb}{1,0,0}
+% --- matlab commands using 'listings' and 'tikz' packages
+\lstset{
+        language=matlab,
+        basicstyle=\color{mtlbtext}\ttfamily,
+        keywordstyle=\color{mtlbcmd}\bfseries,
+        morekeywords={ones, repmat, numel, switch, inline, @}
+}
+% -- la commande mtlb sans bordure
+\newcommand{\mtlb}[1]{\lstinline!#1!}
+% -- la commande mtlbbox comme mtlb mais avec une boite
+\newcommand{\mtlbbox}[1]{\tikz[anchor=base, baseline]{\node[draw=mtlbtext,rounded corners=3pt,top color=white,bottom color=mtlbtext!10,minimum width=7mm]{\vphantom{H}{\lstinline!#1!}\vphantom{p}};}}
+% -- l'environement matlab, peut être utiliser dans minipage
+\lstnewenvironment{matlab}
+        {\lstset{
+                                basicstyle=\color{mtlbtext}\ttfamily\small,
+                                frame=single,
+                                frameround=tttt,
+                                framesep=7pt,
+                                rulecolor=\color{gray}
+                        }
+        }{}
+% -- les commande dans l'IDE de Matlab
+\newcommand{\cmd}[1]{{\color{cmdtext}\texttt{#1}}}
+\newcommand{\cmdbox}[1]{\tikz[anchor=base, baseline]{\node[draw=cmdtext!50,rounded corners=3pt,top color=white,bottom color=cmdtext!10]{\vphantom{H}\cmd{#1}\vphantom{p}};}}
+
+% -- notion
+\newcommand{\notion}[1]{{\color{notion}\textsf{#1}}}
+
+% -- environement attention
+\newcommand{\attention}[2]{
+\begin{center}
+        \tikz{\node[color=black,draw=attention!50,rounded corners=7pt,top color=attention!2,bottom color=attention!1,text width=14cm,align=#1,inner sep=4mm]{#2};}
+\end{center}
+}
+
+% -------------- haut de la page
+\pagestyle{empty}
+\newcommand{\hautdepage}[1]{
+        \thispagestyle{empty}
+        \clearpage
+        \textsc{\large Licence 3$^{{\mathaccent"7012e}me}$ année, option Mathématiques} \hfill \textsc{\large 2012-2013}\\
+        \textsc{M65, Analyse numérique matricielle}
+
+        \begin{center}
+                \rule[0.5ex]{\textwidth}{0.1mm}
+                \vskip1mm
+                {\sc{\Large #1}}
+                \rule[0.5ex]{\textwidth}{0.1mm}
+        \end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hautdepage{TP4 : Conditionnement et méthodes de gradient}
+
+Vous êtes invités à créer un répertoire \cmd{TP4} et un fichier \cmd{.m} pour chacune des parties ci-dessous (comportant les lignes de code correspondant à la résolution de l'exercice).
+
+\attention{center}{En cas de blocage, commencez toujours par regarder l'aide !!}
+
+
+% --------------------------------------------
+\section*{Présentation et indications}
+
+Le but de ce TP est d'étudier l'influence du conditionnement sur la résolution de systèmes linéaires
+par des méthodes itératives. Dans tout le TP,  les matrices des systèmes linéaires seront  symétriques définies positives
+et les méthodes itératives étudiées seront  la méthode de gradient à pas constant avec choix optimal du pas et la méthode de gradient à pas optimal.
+
+
+% --------------------------------------------
+\section{Conditionnement de matrices particulières}
+
+% -------------------------------
+\subsection{Matrice de Hilbert}
+On s'intéresse à la matrice de Hilbert $H\in {\mathcal M}_n(\R)$ définie par
+\begin{equation*}
+    H_{ij}=\dfrac{1}{i+j-1}, \qquad 1\leq i,j\leq n.
+\end{equation*}
+\vspace*{-0.8cm}
+\begin{enumerate}
+    \item Montrer que $H$ est symétrique définie positive ({\em Indication : $H_{i,j}=\int_0^1 t^{i+j-2}dt$ pour $1\leq i,j\leq n$}).
+
+    \item A l'aide de la fonction \mtlb{hilb} et de la fonction \mtlb{cond} de Matlab, étudier l'évolution du conditionnement en norme $2$ de la matrice de Hilbert en fonction de $n$. On pourra notamment représenter graphiquement  le logarithme du conditionnement de $H$ en fonction de $n$ (\mtlb{semilogy}), pour $n$ variant de $1$ à $10$.
+
+    \item Que conjecturez-vous sur l'expression du  conditionnement de $H$ en fonction de $n$ ?
+\end{enumerate}
+
+% -------------------------------
+\subsection{Matrice de diffusion}
+On considère maintenant $n=2p+1$ impair et pour $\delta _1$ et $\delta _2$ deux réels strictement positifs fixés on définit  la matrice de diffusion $D$ par
+\begin{equation*}
+    D_{ij}=
+    \left\{
+        \begin{array}{ccl}
+            2\delta_1           & \text{ si } & i = j \leq p                    \\
+            -\delta _1          & \text{ si } & |i-j|=1, \quad |i+j| \leq 2p+1  \\
+            \delta _1+\delta _2 & \text{ si } & i=j=p+1                         \\
+            2\delta _2          & \text{ si } & i=j \geq p+2                    \\
+            -\delta _2          & \text{ si } & |i-j|=1 , \quad |i+j| \geq 2p+3
+        \end{array}
+    \right.
+\end{equation*}
+\begin{enumerate}
+    \item Que vaut la matrice $D$ si $\delta _1=\delta _2=1$ ?
+
+    \item Montrer que $D$ est symétrique définie positive.
+
+    \item Écrire
+    une fonction \mtlb{[D]= matdiff(p,d1,d2)} qui calcule la matrice $D$ pour les valeurs de $p$, $\delta _1$ et $\delta _2$ données.
+
+    \item On suppose tout d'abord $\delta _1=\delta _2=1$. Que sait-on de $\kappa_2(A)$ ? Mettre en évidence graphiquement le comportement de $\kappa_2(A)$ (on pourra prendre comme valeurs de $p$ : $p=2^i$ pour $i=1$ à 8).
+
+    \item On suppose désormais que $p=20$ et $\delta_1=1$. Étudier numériquement l'évolution de  $\kappa_2(D)$ en fonction de $\delta_2$. On pourra tester les valeurs suivantes pour  $\delta _2$ : 1, 10, 100, 1000, 10000, 100000. Représenter graphiquement le résultat obtenu.
+
+\end{enumerate}
+
+
+% --------------------------------------------
+\section{Méthodes de gradient}
+
+Soit $A\in{\mathcal M}_n(\R)$ une matrice symétrique définie positive et $b\in\R^n$.
+On rappelle la méthode de gradient à pas constant et la méthode de gradient à pas optimal vues en cours.
+
+{\bf Méthode de gradient à pas constant $\alpha$}
+$$
+    \begin{cases}
+        \ x_0 \quad\mbox{donné} \\[7pt]
+        \left.
+            \begin{aligned}
+                & x^{(k+1)}= x^{(k)}+\alpha r^{(k)} \ \\
+                & \mbox{avec}\quad r^{(k)}=b-Ax^{(k)}
+            \end{aligned}
+        \right\} \quad \forall k\geq 0
+    \end{cases}
+$$
+On rappelle que le choix optimal de $\alpha$ est $\alpha_{pot}= \ds\frac{2}{\lambda_1+\lambda_n}$ où $\lambda_1$ et $\lambda_n$ sont respectivement la plus petite et la plus grande valeur propre de $A$.
+
+{\bf Méthode de gradient à pas optimal}
+$$
+    \begin{cases}
+        \ x_0 \quad\mbox{donné} \\[7pt]
+        \left.
+            \begin{aligned}
+                & x^{(k+1)}= x^{(k)}+\alpha_k r^{(k)} \\
+                & \mbox{avec}\quad r^{(k)}=b-Ax^{(k)}
+                    \quad\mbox{et}\quad
+                    \alpha_k=\ds\frac{\left(r^{(k)},r^{(k)}\right)}{\left(Ar^{(k)},r^{(k)}\right)} \
+            \end{aligned}
+        \right\} \quad \forall k\geq 0
+    \end{cases}
+$$
+
+Il s'agit de méthodes itératives. En pratique, on arrêtera les itérations quand la norme euclidienne du résidu $r^{(k)}$ est plus petite qu'une tolérance fixée \mtlb{errmax} ou quand on a atteint un nombre d'itérations maximal fixé \mtlb{nbitmax}. Pour ce TP on pose  \mtlb{nbitmax=1e4} et \mtlb{errmax=1e-3}.
+
+\begin{enumerate}
+
+    \item Écrire une fonction \mtlb{[x,nbiter]=grad\_pas\_constant\_opt(A,b,errmax,nbitmax)} qui résout le système $Ax=b$ par la méthode de gradient à pas constant, avec le choix optimal de $\alpha$ (calculé grâce à la fonction \mtlb{eig} de Matlab).
+
+    \item Écrire une fonction \mtlb{[x,nbiter]=grad\_pas\_opt(A,b,errmax,nbitmax)} qui résout le système $Ax=b$ par la méthode de gradient à pas optimal.
+
+    \item Tester vos fonctions sur la matrice de diffusion avec $\delta_1=\delta_2=1$ et $p=10$. On pourra prendre comme second membre $b=(1,\ldots,1)^t$.
+
+    \item  Résoudre le système linéaire $Hx=b$ pour $n=1$ à 10 par les deux méthodes (on prendre également $b=(1,\ldots,1)^t$). Représenter graphiquement le nombre d'itérations en fonction de $n$. Comparer avec la courbe obtenue pour le conditionnement.
+
+    \item Même question pour la résolution du système $Dx=b$ pour les deux cas :
+    \begin{enumerate}
+
+        \item $\delta_1=1$, $\delta_2=5$ et $p=3i$ pour $i=1,2,\ldots,10$,
+
+        \item $\delta_1=1$, $p=20$ et $\delta_2 = 1,2,\ldots,10$.
+    \end{enumerate}
+    Représenter graphiquement le nombre d'itérations en fonction de $p$ ou en fonction de $\kappa_2$.  Comparer avec les courbes obtenues pour le conditionnement.
+
+\end{enumerate}
+
+
+% --------------------------------------------
+\section{Préconditionnement}
+
+La matrice $A$ du système linéaire $Ax=b$ pouvant être, comme on l'a vu, très mal
+conditionnée, on cherche à transformer le système en un système équivalent, de type $M^{-1}Ax=M^{-1}b$, avec une matrice $M^{-1}A$ mieux conditionnée. La matrice $M$ est appelée ``préconditionneur'' du système linéaire; elle doit être facile à inverser (par exemple diagonale ou triangulaire). Remarquons que le préconditionneur ``idéal''  serait bien
+sûr $A$ elle-même, mais qu'il est inutilisable en pratique.
+
+{\bf Méthode de gradient à pas optimal avec préconditionneur}
+$$
+    \begin{cases}
+        \ x^{(0)} \ \mbox{ donné} \quad \text{et}\quad r^{(0)}=b-Ax^{(0)} \\[14pt]
+        \left.
+            \begin{aligned}
+                & x^{(k+1)}= x^{(k)}+\alpha_k z^{(k)},\quad \ r^{(k+1)}= r^{(k)}-\alpha_k Az^{(k)} \\[4pt]
+                & \mbox{avec}\quad Mz^{(k)}=r^{(k)}
+                    \quad \mbox{et} \quad
+                    \alpha_k=\ds\frac{\left(r^{(k)},z^{(k)}\right)}{\left(Az^{(k)},z^{(k)}\right)}
+            \end{aligned}
+        \right\} \quad \forall k\geq 0
+    \end{cases}
+$$
+\begin{enumerate}
+
+    \item  Écrire une fonction \mtlb{[x,nbiter]=grad\_precond\_pas\_opt(A,M,b,errmax,nbitmax)} qui résout le système $Ax=b$ par la méthode de gradient à pas optimal avec préconditionneur $M$.
+
+    \item Tester l'efficacité d'un préconditionnement diagonal (\mtlb{M=diag(diag(A))}), puis d'un préconditionnement triangulaire (\mtlb{M=tril(A)}) sur la matrice du laplacien discret. Commenter.
+
+    \item Tester l'efficacité d'un préconditionnement triangulaire dans les cas des matrices à diffusion et de Hilbert. Pour cela on peut reprendre les codes des questions 4 et 5 de la partie précédente en remplaçant l'un des méthodes.
+\end{enumerate}
+\end{document}
